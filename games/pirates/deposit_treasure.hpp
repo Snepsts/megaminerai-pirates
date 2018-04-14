@@ -18,7 +18,7 @@ public:
     {
         if(can_execute())
         {
-            un->deposit();
+            _un->deposit();
         }
         else
         {
@@ -28,7 +28,8 @@ public:
 
     void move_towards()
     {
-        
+        _ai->find_path(_un->tile, _ai->player->port->tile, _un);
+        //this->find_path(unit->tile, this->player->port->tile, unit);
     }
 private:
 

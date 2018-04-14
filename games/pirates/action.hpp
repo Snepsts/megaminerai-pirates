@@ -23,7 +23,7 @@ public:
     std::string name;
     std::string job;
 protected:
-    AI _ai;
+    AI* _ai;
     Unit _un;
 };
 
