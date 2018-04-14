@@ -2,7 +2,7 @@
 // This is where you build your AI
 
 #include "ai.hpp"
-#include "action.h"
+#include "action.hpp"
 #include<map>
 #include<string>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
@@ -66,26 +66,26 @@ void AI::ended(bool won, const std::string& reason)
 
 void AI::spawner()
 {
-    vector<Unit> ships;
-    vector<Unit> crew;
-    foreach(u; this->player->units)
+    std::vector<Unit> ships;
+    std::vector<Unit> crew;
+    for(auto u : this->player->units)
     {
         if(u->ship_health > 0)
             ships.push_back(u);
         else
             crew.push_back(u);
     }
-    if(crew.size == 0)
+    if(crew.size() == 0)
     {
         this->player->port->spawn("crew");
     }
-    else if(ships.size == 0)
+    else if(ships.size() == 0)
     {
         this->player->port->spawn("ship");
     }
     else
     {
-        float ratio = crew / ships;
+        float ratio = crew.size() / ships.size();
         if(ratio < 3)
             this->player->port->spawn("crew");
         else

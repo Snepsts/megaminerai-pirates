@@ -2,6 +2,8 @@
 #define ACTION_H
 #include<string>
 #include<vector>
+#include "unit.hpp"
+#include "ai.hpp"
 
 using namespace cpp_client::pirates;
 
