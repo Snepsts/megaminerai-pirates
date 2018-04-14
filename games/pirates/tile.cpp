@@ -63,11 +63,27 @@ std::vector<Tile> Tile_::get_neighbors()
 /// <summary>
 /// Checks if a Tile is pathable to units
 /// </summary>
+/// <param name="unit">the Unit that is checking</param>
 /// <return>true if pathable, false otherwise</return>
-bool Tile_::is_pathable()
+bool Tile_::is_pathable(const Unit& unit)
 {
     // <<-- Creer-Merge: is_pathable_builtin -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-    return false; // DEVELOPER ADD LOGIC HERE
+    
+    // Don't try to path through units
+    if (this->unit != nullptr) 
+    {
+        return false;
+    }
+
+    // Ships can only be on water
+    if (unit->ship_health > 0) 
+    {
+        return type == "water";
+    }
+
+    // Crew that aren't on ships can only be on land or ports owned by their owner
+    return type == "land" || (port != nullptr && port->owner == unit->owner);
+    
     // <<-- /Creer-Merge: is_pathable_builtin -->>
 }
 
