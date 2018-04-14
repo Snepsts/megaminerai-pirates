@@ -27,10 +27,10 @@ add_dependencies(dependencies Pirates_additional)
 
 set(FILES
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/action.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/action.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/action.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/action.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_crew.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_crew.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_ship.cpp
