@@ -6,7 +6,7 @@
 
 using namespace cpp_client::pirates;
 
-class deposit_treaser : action
+class deposit_treaser : public action
 {
 public:
     bool can_execute()
@@ -14,11 +14,17 @@ public:
         
     }
 
-    bool execute();
+    bool execute()
+    {
+        if(can_execute())
+        {
+            un->deposit();
+        }
+    }
 
     void move_towards();
 private:
 
-}
+};
 
 #endif

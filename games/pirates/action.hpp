@@ -23,7 +23,7 @@ public:
 
     std::string name;
     std::string job;
-private:
+protected:
     Player pl;
     Unit un;
 };
