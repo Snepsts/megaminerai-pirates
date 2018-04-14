@@ -2,7 +2,9 @@
 // This is where you build your AI
 
 #include "ai.hpp"
-
+#include "action.h"
+#include<map>
+#include<string>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
 // You can add #includes here for your AI.
 // <<-- /Creer-Merge: includes -->>
@@ -14,6 +16,7 @@ namespace cpp_client
 namespace pirates
 {
 
+std::map<std::string, Action> current_actions;
 /// <summary>
 /// This returns your AI's name to the game server.
 /// Replace the string name.
@@ -138,6 +141,19 @@ bool AI::run_turn()
 
     // <<-- /Creer-Merge: runTurn -->>
     return true;
+}
+
+int get_count_of_action_type(Action p_action)
+{
+    int count = 0;
+    for(std::pair<std::string, Action> kv : current_actions)
+    {
+        if(kv.second->name == p_action->name)
+        {
+            count++;
+        }
+        return count;
+    }
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
