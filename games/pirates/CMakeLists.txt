@@ -26,6 +26,8 @@ endforeach(file)
 add_dependencies(dependencies Pirates_additional)
 
 set(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/action.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/action.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/ai_impl.cpp
@@ -43,6 +45,8 @@ set(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/port_impl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tile.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/turn.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/turn.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/tile_impl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unit.hpp
