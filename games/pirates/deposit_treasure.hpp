@@ -20,9 +20,16 @@ public:
         {
             un->deposit();
         }
+        else
+        {
+            move_towards();
+        }
     }
 
-    void move_towards();
+    void move_towards()
+    {
+        
+    }
 private:
 
 };

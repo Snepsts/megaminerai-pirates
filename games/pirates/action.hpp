@@ -2,17 +2,16 @@
 #define ACTION_H
 #include<string>
 #include<vector>
-#include "player.hpp"
 
 using namespace cpp_client::pirates;
 
 class action
 {
 public:
-    action(Player p, Unit u)
+    action(AI p, Unit u)
     {
-        pl = p;
-        un = u;
+        _ai = p;
+        _un = u;
     }
 
     virtual bool can_execute();
@@ -24,8 +23,8 @@ public:
     std::string name;
     std::string job;
 protected:
-    Player pl;
-    Unit un;
+    AI _ai;
+    Unit _un;
 };
 
 typedef action* Action;
