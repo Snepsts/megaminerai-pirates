@@ -93,6 +93,36 @@ void AI::spawner()
     }
 }
 
+std::vector<Unit> AI::enemyCrew()
+{
+    std::vector<Unit> crew;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health == 0)
+            crew.push_back(u);
+    }
+    return crew;
+}
+
+std::vector<Unit> AI::enemyShips()
+{
+    std::vector<Unit> ships;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health != 0)
+            ships.push_back(u);
+    }
+    return ships;
+}
+
+void AI::get_action()
+{
+    for(auto u : this->player->units)
+    {
+
+    }
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>

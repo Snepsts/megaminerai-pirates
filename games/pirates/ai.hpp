@@ -10,6 +10,7 @@
 #include "tile.hpp"
 #include "unit.hpp"
 #include "action.hpp"
+#include <map>
 
 #include "../../joueur/src/base_ai.hpp"
 #include "../../joueur/src/attr_wrapper.hpp"
@@ -41,6 +42,10 @@ public:
     Player player;
 
     void spawner();
+    void get_action();
+    std::vector<Unit> enemyCrew();
+    std::vector<Unit> enemyShips();
+    std::map<Unit, Action> unit_action_map;
 
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
