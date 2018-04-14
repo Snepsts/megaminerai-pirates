@@ -1,6 +1,6 @@
 #include "action.h"
-#include <vector>
 
+// Global definition of a vector of possible actions
 std::vector<Action> ACTION_VECTOR;
 
 void action_init(Action act)

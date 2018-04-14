@@ -16,6 +16,8 @@ namespace cpp_client
 namespace pirates
 {
 
+extern std::vector<Action> ACTION_VECTOR;
+
 std::map<std::string, Action> current_actions;
 /// <summary>
 /// This returns your AI's name to the game server.
