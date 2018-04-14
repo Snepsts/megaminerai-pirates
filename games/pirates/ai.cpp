@@ -2,7 +2,7 @@
 // This is where you build your AI
 
 #include "ai.hpp"
-#include "action.hpp"
+#include "action.h"
 #include<map>
 #include<string>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
@@ -64,82 +64,112 @@ void AI::ended(bool won, const std::string& reason)
     //<<-- /Creer-Merge: ended -->>
 }
 
+void AI::spawner()
+{
+    vector<Unit> ships;
+    vector<Unit> crew;
+    foreach(u; this->player->units)
+    {
+        if(u->ship_health > 0)
+            ships.push_back(u);
+        else
+            crew.push_back(u);
+    }
+    if(crew.size == 0)
+    {
+        this->player->port->spawn("crew");
+    }
+    else if(ships.size == 0)
+    {
+        this->player->port->spawn("ship");
+    }
+    else
+    {
+        float ratio = crew / ships;
+        if(ratio < 3)
+            this->player->port->spawn("crew");
+        else
+            this->player->port->spawn("ship");
+    }
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
 /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
 bool AI::run_turn()
 {
+    spawner();
     // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
 
-    if (this->player->units.size() == 0)
-    {
-        // Spawn a crew if we have no units
-        this->player->port->spawn("crew");
-    }
-    else if (this->player->units[0]->ship_health == 0)
-    {
-        // Spawn a ship so our crew can sail
-        this->player->port->spawn("ship");
-    }
-    else if (this->player->units[0]->ship_health < this->game->ship_health / 2)
-    {
-        // Heal our unit if the ship is almost dead
-        // Node: Crew also have their own health. Maybe try adding a check to see if the crew need healing?
-        Unit unit = this->player->units[0];
+    // if (this->player->units.size() == 0)
+    // {
+    //     // Spawn a crew if we have no units
+    //     this->player->port->spawn("crew");
+    // }
+    // else if (this->player->units[0]->ship_health == 0)
+    // {
+    //     // Spawn a ship so our crew can sail
+    //     this->player->port->spawn("ship");
+    // }
+    // else if (this->player->units[0]->ship_health < this->game->ship_health / 2)
+    // {
+    //     // Heal our unit if the ship is almost dead
+    //     // Node: Crew also have their own health. Maybe try adding a check to see if the crew need healing?
+    //     Unit unit = this->player->units[0];
 
-        // Find a path to our port so we can heal
-        std::vector<Tile> path = this->find_path(unit->tile, this->player->port->tile, unit);
-        if (path.size() > 0)
-        {
-            // Move along the path if there is one
-            unit->move(path[0]);
-        }
-        else
-        {
-            // Try to deposit any gold we have while we're here
-            unit->deposit();
+    //     // Find a path to our port so we can heal
+    //     std::vector<Tile> path = this->find_path(unit->tile, this->player->port->tile, unit);
+    //     if (path.size() > 0)
+    //     {
+    //         // Move along the path if there is one
+    //         unit->move(path[0]);
+    //     }
+    //     else
+    //     {
+    //         // Try to deposit any gold we have while we're here
+    //         unit->deposit();
 
-            // Try to rest
-            unit->rest();
-        }
-    }
-    else
-    {
-        // Try to attack a merchant
-        Unit unit = this->player->units[0];
+    //         // Try to rest
+    //         unit->rest();
+    //     }
+    // }
+    // else
+    // {
+    //     // Try to attack a merchant
+    //     Unit unit = this->player->units[0];
 
-        // Look for a merchant ship
-        Unit merchant = NULL;
-        std::vector<Unit> units = this->game->units;
-        for (unsigned int i = 0; i < units.size(); i++)
-        {
-            if (units[i]->target_port != NULL)
-            {
-                // Found one
-                merchant = units[i];
-                break;
-            }
-        }
+    //     // Look for a merchant ship
+    //     Unit merchant = NULL;
+    //     std::vector<Unit> units = this->game->units;
+    //     for (unsigned int i = 0; i < units.size(); i++)
+    //     {
+    //         if (units[i]->target_port != NULL)
+    //         {
+    //             // Found one
+    //             merchant = units[i];
+    //             break;
+    //         }
+    //     }
 
-        // If we found a merchant, move to it, then attack it
-        if (merchant != NULL)
-        {
-            // Find a path to this merchant
-            std::vector<Tile> path = this->find_path(unit->tile, merchant->tile, unit);
-            if (path.size() > this->game->ship_range)
-            {
-                // Move until we're withing firing range of the merchant
-                // Node: Range is *Circular* in pirates, so this can be improved on
-                unit->move(path[0]);
-            }
-            else
-            {
-                // Try to attack the merchant's ship
-                unit->attack(merchant->tile, "ship");
-            }
-        }
-    }
+    //     // If we found a merchant, move to it, then attack it
+    //     if (merchant != NULL)
+    //     {
+    //         // Find a path to this merchant
+    //         std::vector<Tile> path = this->find_path(unit->tile, merchant->tile, unit);
+    //         if (path.size() > this->game->ship_range)
+    //         {
+    //             // Move until we're withing firing range of the merchant
+    //             // Node: Range is *Circular* in pirates, so this can be improved on
+    //             unit->move(path[0]);
+    //         }
+    //         else
+    //         {
+    //             // Try to attack the merchant's ship
+    //             unit->attack(merchant->tile, "ship");
+    //         }
+    //     }
+    // }
 
     // <<-- /Creer-Merge: runTurn -->>
     return true;
