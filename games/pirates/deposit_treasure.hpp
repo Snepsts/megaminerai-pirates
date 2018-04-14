@@ -3,36 +3,23 @@
 
 #include "ai.hpp"
 #include "action.hpp"
+#include <string>
 
 using namespace cpp_client::pirates;
 
-class deposit_treaser : public action
+class deposit_treasure : public action
 {
 public:
-    bool can_execute()
-    {
-        
-    }
+    deposit_treasure(AI* aip, Unit un, std::string name);
 
-    bool execute()
-    {
-        if(can_execute())
-        {
-            _un->deposit();
-        }
-        else
-        {
-            move_towards();
-        }
-    }
+    bool can_execute();
 
-    void move_towards()
-    {
-        _ai->find_path(_un->tile, _ai->player->port->tile, _un);
-        //this->find_path(unit->tile, this->player->port->tile, unit);
-    }
+    bool execute();
+
+    void move_towards();
+    
 private:
-
+    std::vector<Tile> path;
 };
 
 #endif

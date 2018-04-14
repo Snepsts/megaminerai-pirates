@@ -9,7 +9,6 @@
 #include "port.hpp"
 #include "tile.hpp"
 #include "unit.hpp"
-#include "action.hpp"
 
 #include "../../joueur/src/base_ai.hpp"
 #include "../../joueur/src/attr_wrapper.hpp"
@@ -39,6 +38,8 @@ public:
     /// This is a pointer to your AI's player. This AI class is not a player, but it should command this Player.
     /// </summary>
     Player player;
+
+    void spawner();
 
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
