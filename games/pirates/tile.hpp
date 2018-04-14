@@ -114,8 +114,9 @@ public:
     /// <summary>
     /// Checks if a Tile is pathable to units
     /// </summary>
+    /// <param name="unit">the Unit that is checking</param>
     /// <return>true if pathable, false otherwise</return>
-    bool is_pathable();
+    bool is_pathable(const Unit& unit);
 
     /// <summary>
     /// Checks if this Tile has a specific neighboring Tile
