@@ -26,11 +26,20 @@ endforeach(file)
 add_dependencies(dependencies Pirates_additional)
 
 set(FILES
+
     ${CMAKE_CURRENT_SOURCE_DIR}/action.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/action.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ai.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_crew.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_crew.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_ship.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/attack_enemy_ship.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/ai_impl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/defend_treasure.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/defend_treasure.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/deposit_treasure.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/deposit_treasure.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/pirates.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/pirates.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/pirates_fwd.hpp
@@ -43,6 +52,8 @@ set(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/port.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/port.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/impl/port_impl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/steal_gold.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/steal_gold.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/turn.cpp
