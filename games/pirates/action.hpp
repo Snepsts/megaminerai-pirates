@@ -8,7 +8,7 @@ using namespace cpp_client::pirates;
 class action
 {
 public:
-    action(AI p, Unit u)
+    action(AI *p, Unit u)
     {
         _ai = p;
         _un = u;
