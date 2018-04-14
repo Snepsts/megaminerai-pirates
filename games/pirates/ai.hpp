@@ -9,8 +9,6 @@
 #include "port.hpp"
 #include "tile.hpp"
 #include "unit.hpp"
-#include "action.hpp"
-#include <map>
 
 #include "../../joueur/src/base_ai.hpp"
 #include "../../joueur/src/attr_wrapper.hpp"

@@ -1,16 +1,26 @@
 #ifndef ACTION_H
 #define ACTION_H
+
 #include<string>
 #include<vector>
-#include "unit.hpp"
+
 #include "ai.hpp"
+#include "game.hpp"
+#include "game_object.hpp"
+#include "player.hpp"
+#include "port.hpp"
+#include "tile.hpp"
+#include "unit.hpp"
+
+#include "../../joueur/src/base_ai.hpp"
+#include "../../joueur/src/attr_wrapper.hpp"
 
 using namespace cpp_client::pirates;
 
 class action
 {
 public:
-    action(AI *p, Unit u)
+    action(AI* p, Unit u)
     {
         _ai = p;
         _un = u;

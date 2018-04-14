@@ -1,3 +1,4 @@
+#include "ai.hpp"
 #include "deposit_treasure.hpp"
 
 deposit_treasure::deposit_treasure(AI* aip, Unit un, std::string name) : action(aip, un)

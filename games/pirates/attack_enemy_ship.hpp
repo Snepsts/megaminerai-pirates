@@ -5,4 +5,12 @@
 
 using namespace cpp_client::pirates;
 
+class attack_enemy_ship : public action
+{
+    bool can_execute();
+
+    bool execute();
+
+};
+
 #endif
