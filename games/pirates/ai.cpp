@@ -2,7 +2,7 @@
 // This is where you build your AI
 
 #include "ai.hpp"
-#include "action.h"
+#include "action.hpp"
 #include<map>
 #include<string>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
