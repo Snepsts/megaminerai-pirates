@@ -224,7 +224,7 @@ bool AI::steal_enemy_ship(Unit u)
     }
     else
     {
-        //move_next_to_tile(u, path_to_enemy_ship.back());
+        move_next_to_tile(u, path_to_enemy_ship.back());
         if(u->attack(closest_enemy_ship, "crew"))
         {
             return true;
@@ -367,7 +367,6 @@ bool AI::move_towards_enemy_treasure(Unit u)
     }
     return false;
 }
-//
 
 bool AI::move_to_tile(Unit u, Tile t)
 {
@@ -378,6 +377,20 @@ bool AI::move_to_tile(Unit u, Tile t)
             u->move(path[0]);
     }
     if (u->tile == t)
+        return true;
+    else
+        return false;
+}
+
+bool AI::move_next_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 1)
+            u->move(path[0]);
+    }
+    if (find_path(u->tile, t, u).size() == 1)
         return true;
     else
         return false;

@@ -77,36 +77,34 @@ public:
     
     void get_action();
 
+    //
+    //Finder Definitions
+    //
     std::vector<Unit> get_enemy_crew();
     std::vector<Unit> get_enemy_ships();
     std::vector<Tile> get_list_of_enemy_treasure();
-    bool is_ship(Unit u);
+    Tile get_closest_enemy_treasure(Unit u);
+    Tile get_closest_enemy_ship(Unit u);
+    int get_close_enemy_ships(Unit u);
     //
     //Action Definitions
     //
     bool deposit_treasure_in_home(Unit u);
-    bool move_towards_enemy_treasure(Unit u);
     bool steal_enemy_treasure(Unit u);
-    Tile get_closest_enemy_treasure(Unit u);
-    Tile get_closest_enemy_ship(Unit u);
     bool steal_enemy_ship(Unit u);
-    bool move_to_tile(Unit u, Tile t);
     bool destroy_enemy_ship(Unit u);
 
     //
     // Helper method delcarations
     //
-    bool is_ship(Unit u);
-    std::vector<Unit> get_enemy_crew();
-    std::vector<Unit> get_enemy_ships();
-    std::vector<Tile> build_list_of_enemy_treasure();
-    void spawn_units();
+    bool move_towards_enemy_treasure(Unit u);
     bool move_to_tile(Unit u, Tile t);
-    int get_close_enemy_ships(Unit u);
-    Tile get_closest_enemy_treasure(Unit un);
+    bool move_next_to_tile(Unit u, Tile t);
+    bool is_ship(Unit u);
 
 
     // <<-- /Creer-Merge: methods -->>
+    void spawn_units();
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
