@@ -183,7 +183,7 @@ float AI::get_ship_health_value(Unit u)
 
 float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 {
-    float fuzzy = 0.0;
+    //float fuzzy = 0.0;
 
     int highest_gold = 0;
     for(auto un : this->player->units)
@@ -192,7 +192,7 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
             highest_gold = un->gold;
     }
 
-    float fuzzy_gold = u->gold / highest_gold;
+    //float fuzzy_gold = u->gold / highest_gold;
 
     return 0;
 }
@@ -204,11 +204,14 @@ bool AI::fuzzy_crew_dig(Unit u, Tile t)
     if( fuzzy_value <= 0.5)
     {
         unit_retreat_and_rest(u);
+        return false;
     }
     else
     {
         crew_dig_treasure(u, t);
+        return true;
     }
+    return false;
 }
 
 //**************************************************************************************************
@@ -274,6 +277,25 @@ bool AI::board_empty_ship(Unit u)
         }
     }
     return false;
+}
+
+bool AI::ship_steal_enemy_treasure(Unit u)
+{
+    Tile closest_enemy_treasure = get_closest_enemy_treasure(u);
+    if(closest_enemy_treasure == NULL) 
+    {
+        return false; //no treasure was found
+    }
+    else
+    {
+        if(move_to_tile(u, closest_enemy_treasure))
+        {
+            u->split(closest_enemy_treasure, u->crew/2);
+            return true;
+        }
+        return false;
+    }
+    return false; //error
 }
 
 bool AI::steal_enemy_treasure(Unit u)
@@ -347,6 +369,93 @@ bool AI::destroy_enemy_ship(Unit u)
         return false;
     }
     return false;
+}
+
+bool AI::pickup_units_with_gold(Unit u)
+{
+    std::vector<Unit> units_with_gold;
+    std::vector<Tile> unit_tiles;
+    for(Unit unit : player->units) {
+        if (unit->gold > 0) {
+            std::vector<Tile> path_to_home_port = find_path(u->tile, player->port->tile, u);
+            if(path_to_home_port.back() != player->port->tile) {
+                units_with_gold.push_back(unit);
+                unit_tiles.push_back(unit->tile);
+            }
+        }
+    }
+    if(units_with_gold.size() == 0) {
+        return false;
+    }
+    std::sort(units_with_gold.begin(), units_with_gold.end(), [](Unit a, Unit b) -> bool { return a->gold >= b->gold; });
+    float max_gold = (float)(units_with_gold[0]->gold);
+    std::vector<std::vector<Tile>> paths_to_units = get_all_possible_paths_to_options(u, unit_tiles);
+    std::sort(paths_to_units.begin(), paths_to_units.end(), [](std::vector<Tile> &a, std::vector<Tile> &b) -> bool {return a.size() >= b.size(); }); 
+    float max_distance =(float)(paths_to_units[0].size());
+    std::vector<std::vector<Tile>> paths_to_enemies;
+    for(Unit enemy_unit : player->opponent->units)
+    {
+        for(Unit our_unit : units_with_gold)
+        {
+            std::vector<Tile> temp = find_path(our_unit->tile, enemy_unit->tile, our_unit);
+            if(!temp.empty())
+                paths_to_enemies.push_back(temp);
+        }
+    }
+    std::sort(paths_to_enemies.begin(), paths_to_enemies.end(), [](std::vector<Tile> &a, std::vector<Tile> &b) -> bool { return a.size() <= b.size(); });
+    float closest_enemy = (float)(paths_to_units[0].size());
+    std::vector<float> values;
+    for(Unit unit : units_with_gold)
+    {
+        float gold = ((float)unit->gold)/max_gold;
+        std::vector<Tile> temp = find_path(u->tile, unit->tile, u);
+        float distance = 0.0f;
+        if(!temp.empty())
+            distance = 1.0f - ((float)(temp.size()))/max_distance;
+        std::vector<std::vector<Tile>> temp_paths_to_enemies;
+        for(Unit enemy_unit : player->opponent->units)
+        {
+            std::vector<Tile> temp = find_path(unit->tile, enemy_unit->tile, unit);
+            if(!temp.empty())
+                temp_paths_to_enemies.push_back(temp);
+        }
+        std::sort(temp_paths_to_enemies.begin(), temp_paths_to_enemies.end(), [](std::vector<Tile> &a, std::vector<Tile> &b) -> bool { return a.size() <= b.size();});
+        float enemy = 1.0f - ((float)temp_paths_to_enemies[0].size())/closest_enemy;
+        float value = gold + distance + enemy;
+        values.push_back(value);
+    }
+    
+    float smallest = 2.0f;
+    int index = -1;
+    for(float value : values)
+    {
+        if(value < smallest)
+        {
+            smallest = value;
+        }
+        index++;
+    }
+    Unit chosen_unit = units_with_gold[index];
+    if(move_to_tile(u, chosen_unit->tile))
+    {
+        return true;
+    }
+    return false;
+    //we could add a check for allies around the unit and enemies around the unit
+}
+
+std::vector<std::vector<Tile>> AI::get_all_possible_paths_to_options(Unit u, std::vector<Tile> tile_options)
+{
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Tile tile_option : tile_options)
+    {
+        std::vector<Tile> temp = find_path(u->tile, tile_option, u);
+        if(temp.size() > 0)
+        {
+            possible_paths.push_back(temp);
+        }
+    }
+    return possible_paths;
 }
 
 bool AI::destroy_merchant_ship(Unit u)
@@ -732,7 +841,7 @@ Tile AI::get_nearest_port(Unit u)
         if(t->port != nullptr)
             docks.push_back(t);
     }
-    AI* temp = this;
+    //AI* temp = this;
     
     Tile nearest;
     if(docks.size() > 0)
