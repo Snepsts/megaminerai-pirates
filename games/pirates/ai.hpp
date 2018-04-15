@@ -131,11 +131,18 @@ public:
     bool run_crew_turn(Unit u);
     bool run_ship_attack(Unit u);
 
+    //fuzzy controllers
+    bool attack_instead_of_steal(Unit u);
+
     //fuzzy stuff
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
     float get_crew_dig_fuzzy(Unit u, Tile t);
+    float closeness_to_gold(Unit u);
+
+    //fuzzy helpers
+    int get_distance_to_enemy_gold(Unit u);
 
     bool fuzzy_crew_dig(Unit u, Tile t);
     float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);

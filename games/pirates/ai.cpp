@@ -99,14 +99,57 @@ bool AI::run_ship_turn(Unit u)
     std::cout << "run_ship_turn\n";
     float decision = get_ship_aggressiveness(u);
 
-    if (decision > 0.5f) {
-
+    if (decision > 0.75f) {
         destroy_enemy_ship(u);
-    } else {
+    } else if (decision <= 0.75f || decision >= 0.35f) {
+        unit_retreat_and_rest(u);
+    } else { //decision < 0.35
         unit_retreat_and_rest(u);
     }
 
     return true;
+}
+
+bool AI::attack_instead_of_steal(Unit u)
+{
+    float decision = 0.0f;
+
+    decision += get_ship_health_value(u);
+    decision += 1 - closeness_to_gold(u);
+    decision += 1 - get_ship_danger_level(u);
+    
+    decision /= 3;
+
+    return decision >= 0.5f;
+}
+
+float AI::closeness_to_gold(Unit u)
+{
+    int val = get_distance_to_enemy_gold(u);
+
+    if (val == -1)
+        return 0.0f;
+    
+    return 1 - (val / (game->map_height + game->map_width));
+}
+
+//returns -1 if no gold
+int AI::get_distance_to_enemy_gold(Unit u)
+{
+    auto enemy_gold_list = AI::get_list_of_enemy_treasure();
+
+    if (enemy_gold_list.size() == 0)
+        return -1;
+    
+    int shortest = find_path(u->tile, enemy_gold_list[0], u).size();
+
+    for (auto goldies : enemy_gold_list) {
+        int compare = find_path(u->tile, goldies, u).size();
+        if (compare < shortest)
+            shortest = compare;
+    }
+
+    return shortest;
 }
 
 bool AI::run_crew_turn(Unit u)
@@ -115,18 +158,28 @@ bool AI::run_crew_turn(Unit u)
     return true;
 }
 
-bool AI::run_ship_attack(Unit u)
+bool AI::run_ship_attack(Unit u) //this is gross but enemy and merchants are treated differently in our logic sooo
 {
     std::cout << "run_ship_attack\n";
-    float decision = 0.0f;
+    float enemy_decision = 0.0f;
     Tile enemy_ship = get_closest_enemy_ship(u);
+
+    enemy_decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
+    enemy_decision += get_enemy_ship_crew_value(u, enemy_ship); 
+    enemy_decision /= 2;
+
+    float merchant_decision = 0.0f;
     Tile merchant_ship = get_closest_merchant_ship(u);
 
-    decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
-    decision += get_enemy_ship_crew_value(u, enemy_ship); 
-    decision /= 2;
+    merchant_decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
+    merchant_decision += get_enemy_ship_crew_value(u, enemy_ship); 
+    merchant_decision /= 2;
 
-    if (decision > 0.5f) //higher value means ranged attack
+    if (merchant_decision > enemy_decision) { //favor merchants
+            return destroy_merchant_ship(u);
+    }
+    //else
+    if (enemy_decision > 0.5f) //higher value means ranged attack
         return destroy_enemy_ship(u);
     else
         return steal_enemy_ship(u);
