@@ -99,7 +99,7 @@ bool AI::run_ship_turn(Unit u)
     if (decision > 0.5f) {
         destroy_enemy_ship(u);
     } else {
-        //not sure
+        unit_retreat_and_rest(u);
     }
 
     return true;
