@@ -74,7 +74,7 @@ bool AI::run_turn()
 
     auto my_units = player->units;
 
-    std::vector<Unit> available_units;
+    std::vector<Unit> available_units; //in case we rerun the function
 
     for (auto unit : my_units) {
         if (!unit->acted)
@@ -97,9 +97,9 @@ bool AI::run_ship_turn(Unit u)
     float decision = get_ship_aggressiveness(u);
 
     if (decision > 0.5f) {
-        //attack
+        destroy_enemy_ship(u);
     } else {
-        //flee?
+        unit_retreat_and_rest(u);
     }
 
     return true;
@@ -108,6 +108,32 @@ bool AI::run_ship_turn(Unit u)
 bool AI::run_crew_turn(Unit u)
 {
     return true;
+}
+
+bool AI::run_ship_attack(Unit u)
+{
+    float decision = 0.0f;
+    Tile enemy_ship = get_closest_enemy_ship(u);
+
+    decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
+    decision += get_enemy_ship_crew_value(u, enemy_ship); 
+    decision /= 2;
+
+    if (decision > 0.5f) //higher value means ranged attack
+        return destroy_enemy_ship(u);
+    else
+        return steal_enemy_ship(u);
+
+}
+
+float AI::get_enemy_ship_health_value(Unit u, Tile enemy_ship)
+{
+    return (float)(enemy_ship->unit->ship_health / game->ship_health);
+}
+
+float AI::get_enemy_ship_crew_value(Unit u, Tile enemy_ship)
+{ //favor them more so if we get a higher value we know our crew is definitely better
+    return 1.0f - (float)(u->crew_health / 1.3f) / enemy_ship->unit->crew_health;
 }
 
 float AI::get_ship_aggressiveness(Unit u)
@@ -120,12 +146,15 @@ float AI::get_ship_aggressiveness(Unit u)
     return ret / 2;
 }
 
+//******************************************************************************************
+//Fuzzy functions
+//******************************************************************************************
+
 float AI::get_ship_danger_level(Unit u)
 {
     float ret = 0.0f;
 
-    //int enemy_ships = get_close_enemy_ships(u);
-    int enemy_ships = 0;
+    int enemy_ships = get_close_enemy_ships(u);
     switch (enemy_ships) {
         case 0:
             ret += 0.0f;
@@ -139,6 +168,9 @@ float AI::get_ship_danger_level(Unit u)
         case 3:
             ret += 1.0f;
             break;
+        default:
+            ret += 1.0f;
+            break;
     }
 
     return ret;
@@ -147,6 +179,36 @@ float AI::get_ship_danger_level(Unit u)
 float AI::get_ship_health_value(Unit u)
 {
     return (float)(u->ship_health / game->ship_health);
+}
+
+float AI::get_crew_dig_fuzzy(Unit u, Tile t)
+{
+    float fuzzy = 0.0;
+
+    int highest_gold = 0;
+    for(auto un : this->player->units)
+    {
+        if (un->gold > highest_gold)
+            highest_gold = un->gold;
+    }
+
+    float fuzzy_gold = u->gold / highest_gold;
+
+    return 0;
+}
+
+bool AI::fuzzy_crew_dig(Unit u, Tile t)
+{
+    float fuzzy_value = get_crew_dig_fuzzy(u, t);
+
+    if( fuzzy_value <= 0.5)
+    {
+        unit_retreat_and_rest(u);
+    }
+    else
+    {
+        crew_dig_treasure(u, t);
+    }
 }
 
 //**************************************************************************************************
@@ -376,7 +438,7 @@ std::vector<std::vector<Tile>> AI::get_all_possible_paths_to_options(Unit u, std
 
 bool AI::destroy_merchant_ship(Unit u)
 {
-    Tile closest_ship_tile = get_closest_enemy_ship(u);
+    Tile closest_ship_tile = get_closest_merchant_ship(u);
     auto path = this->find_path(u->tile, closest_ship_tile, u);
     if(path.size() > 3)
     {
@@ -395,9 +457,9 @@ bool AI::destroy_merchant_ship(Unit u)
 bool AI::unit_retreat_and_rest(Unit u)
 //Moves unit towards the home port and rests once it is within 3 spaces of it
 {
+    move_next_to_tile(u, this->player->port->tile);
     auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
-    move_to_tile(u, this->player->port->tile);
-    if(distance_to_port <= 3)
+    if(distance_to_port == 0)
     {
         u->rest();
         return true;
@@ -431,6 +493,7 @@ bool AI::crew_dig_treasure(Unit u, Tile t)
 
 //**************************************************************************************************
 //helper functions
+//**************************************************************************************************
 Tile AI::get_closest_empty_ship(Unit u)
 {
     std::vector<std::vector<Tile>> possible_paths;
@@ -444,6 +507,30 @@ Tile AI::get_closest_empty_ship(Unit u)
         return NULL;
     }
     return get_closest_tile_from_options(u, empty_ship_tiles);
+}
+
+Tile AI::get_closest_merchant_ship(Unit u)
+{
+    std::vector<Unit> merchants;
+    for(auto un : this->game->units)
+    {
+        if(un->target_port != nullptr)
+            merchants.push_back(un);
+    }
+
+    if(merchants.size() > 0)
+    {
+        Unit m = merchants[0];
+        auto distance = this->find_path(u->tile, m->tile, u).size();
+        for(auto merch : merchants)
+        {
+            auto current_distance = this->find_path(u->tile, merch->tile, u).size();
+            if(current_distance > distance)
+                m = merch;
+        }
+        return m->tile;
+    }
+    return nullptr;
 }
 
 Tile AI::get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options)
@@ -650,30 +737,31 @@ int AI::get_close_enemy_ships(Unit u)
 
 void AI::spawn_units()
 {
-    std::vector<Unit> ships;
-    std::vector<Unit> crew;
-    for(auto u : this->player->units)
-    {
-        if(u->ship_health > 0)
-            ships.push_back(u);
-        else
-            crew.push_back(u);
+    int ships = 0;
+    int crew = 0;
+
+    for (auto unit : this->player->units) {
+        if (unit->ship_health > 0)
+            ships++;
+        crew += unit->crew;
     }
-    if(crew.size() == 0)
-    {
+
+    if (crew == 0) {
         this->player->port->spawn("crew");
     }
-    else if(ships.size() == 0)
-    {
+    
+    if (ships == 0) {
         this->player->port->spawn("ship");
-    }
-    else
-    {
-        float ratio = crew.size() / ships.size();
-        if(ratio < 3)
+    } else {
+        float ratio = crew / ships;
+        if (ratio < 3)
             this->player->port->spawn("crew");
         else
             this->player->port->spawn("ship");
+    }
+
+    if (player->port->tile->unit->ship_health > 0) {
+        this->player->port->spawn("crew");
     }
 }
 
@@ -715,6 +803,35 @@ bool AI::deposit_treasure_in_home(Unit u)
         u->move(path[0]);
         return false;
     }
+}
+
+Tile AI::get_nearest_port(Unit u)
+{
+    std::vector<Tile> docks;
+    for(auto t : this->game->tiles)
+    {
+        if(t->port != nullptr)
+            docks.push_back(t);
+    }
+    AI* temp = this;
+    
+    Tile nearest;
+    if(docks.size() > 0)
+    {
+        nearest = docks[0];
+        size_t distance = this->find_path(u->tile, nearest, u).size();
+        for(auto d : docks)
+        {
+            size_t current_distance = this->find_path(u->tile, d, u).size();
+            if(current_distance < distance)
+            {
+                distance = current_distance;
+                nearest = d;
+            }
+        }
+    }
+
+    return nearest;
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.

@@ -85,6 +85,7 @@ public:
     std::vector<Tile> get_list_of_enemy_treasure();
     Tile get_closest_enemy_treasure(Unit u);
     Tile get_closest_enemy_ship(Unit u);
+    Tile get_closest_merchant_ship(Unit u);
     int get_close_enemy_ships(Unit u);
     Tile get_closest_empty_ship(Unit u);
     Tile get_closest_port(Unit u);
@@ -92,6 +93,8 @@ public:
     std::vector<std::vector<Tile>> get_all_possible_paths_to_options(Unit u, std::vector<Tile> tile_options);
 
     
+    Tile get_nearest_port(Unit u);
+
     //
     //Action Definitions
     //
@@ -124,11 +127,17 @@ public:
     void spawn_units();
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
+    bool run_ship_attack(Unit u);
 
     //fuzzy stuff
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
+    float get_crew_dig_fuzzy(Unit u, Tile t);
+
+    bool fuzzy_crew_dig(Unit u, Tile t);
+    float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);
+    float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
