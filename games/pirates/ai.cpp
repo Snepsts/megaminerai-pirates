@@ -183,7 +183,7 @@ float AI::get_ship_health_value(Unit u)
 
 float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 {
-    float fuzzy = 0.0;
+    //float fuzzy = 0.0;
 
     int highest_gold = 0;
     for(auto un : this->player->units)
@@ -192,7 +192,7 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
             highest_gold = un->gold;
     }
 
-    float fuzzy_gold = u->gold / highest_gold;
+    //float fuzzy_gold = u->gold / highest_gold;
 
     return 0;
 }
@@ -204,11 +204,14 @@ bool AI::fuzzy_crew_dig(Unit u, Tile t)
     if( fuzzy_value <= 0.5)
     {
         unit_retreat_and_rest(u);
+        return false;
     }
     else
     {
         crew_dig_treasure(u, t);
+        return true;
     }
+    return false;
 }
 
 //**************************************************************************************************
@@ -274,6 +277,25 @@ bool AI::board_empty_ship(Unit u)
         }
     }
     return false;
+}
+
+bool AI::ship_steal_enemy_treasure(Unit u)
+{
+    Tile closest_enemy_treasure = get_closest_enemy_treasure(u);
+    if(closest_enemy_treasure == NULL) 
+    {
+        return false; //no treasure was found
+    }
+    else
+    {
+        if(move_to_tile(u, closest_enemy_treasure))
+        {
+            u->split(closest_enemy_treasure, u->crew/2);
+            return true;
+        }
+        return false;
+    }
+    return false; //error
 }
 
 bool AI::steal_enemy_treasure(Unit u)
@@ -813,7 +835,7 @@ Tile AI::get_nearest_port(Unit u)
         if(t->port != nullptr)
             docks.push_back(t);
     }
-    AI* temp = this;
+    //AI* temp = this;
     
     Tile nearest;
     if(docks.size() > 0)

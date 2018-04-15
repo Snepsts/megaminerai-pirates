@@ -109,6 +109,7 @@ public:
     bool crew_bury_treasure(Unit u);
     bool crew_dig_treasure(Unit u, Tile t);
     bool pickup_units_with_gold(Unit u);
+    bool ship_steal_enemy_treasure(Unit u);
 
     //
     // Helper method delcarations
