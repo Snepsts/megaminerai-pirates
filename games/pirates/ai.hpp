@@ -131,7 +131,7 @@ public:
     float get_ship_health_value(Unit u);
     float get_crew_dig_fuzzy(Unit u, Tile t);
 
-    bool fuzzy_crew_dig();
+    bool fuzzy_crew_dig(Unit u, Tile t);
     float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);
     float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
 
