@@ -287,6 +287,24 @@ bool AI::destroy_enemy_ship(Unit u)
     return false;
 }
 
+bool AI::destroy_merchant_ship(Unit u)
+{
+    Tile closest_ship_tile = get_closest_enemy_ship(u);
+    auto path = this->find_path(u->tile, closest_ship_tile, u);
+    if(path.size() > 3)
+    {
+        move_next_to_tile(u, closest_ship_tile);
+        path = this->find_path(u->tile, closest_ship_tile, u);
+        if(path.size() <= 3)
+            return u->attack(closest_ship_tile, "ship");
+        return false;
+    } 
+    else
+    {
+        return u->attack(closest_ship_tile, "ship");
+    }
+}
+
 bool AI::unit_retreat_and_rest(Unit u)
 //Moves unit towards the home port and rests once it is within 3 spaces of it
 {
@@ -308,7 +326,7 @@ bool AI::crew_bury_treasure(Unit u)
     {
         if(std::find(buried_treasure_vec.begin(), buried_treasure_vec.end(), u->tile) == buried_treasure_vec.end())
             buried_treasure_vec.push_back(u->tile);
-            
+
         return u->bury(u->gold);
     }
     return false;

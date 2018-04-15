@@ -98,10 +98,12 @@ public:
     bool steal_enemy_treasure(Unit u);
     bool steal_enemy_ship(Unit u);
     bool destroy_enemy_ship(Unit u);
+    bool destroy_merchant_ship(Unit u);
     bool unit_retreat_and_rest(Unit u);
     bool board_empty_ship(Unit u);
     bool crew_bury_treasure(Unit u);
     bool crew_dig_treasure(Unit u, Tile t);
+    
 
     //
     // Helper method delcarations
