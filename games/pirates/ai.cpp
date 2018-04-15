@@ -154,8 +154,181 @@ int AI::get_distance_to_enemy_gold(Unit u)
 
 bool AI::run_crew_turn(Unit u)
 {
-    std::cout << "run_crew_turn\n";
+    if(fuzzy_go_heal_crew(u)) //should we go heal?
+    {
+        return crew_try_to_get_home(u);
+    } else { //don't go heal
+        if(fuzzy_deposit_gold_crew(u)) { //should we go deposit gold?
+            return crew_try_to_get_home(u); //yes
+        } else { //no
+            if(check_for_reachable_empty_ships(u)) {
+                return board_empty_ship(u);
+            } else {
+                if(check_for_enemy_treasure_on_island(u)) { //is the treasure on this island?
+                    return steal_enemy_treasure(u); //yes lets go steal it
+                } else if(check_unit_board_ship(u)) {
+                    return board_ship(u);
+                } else {
+                    request_ship(u); //requested a ship
+                    return false;
+                }
+            }
+        }
+    }
+}
+
+bool AI::check_on_home_island(Unit u)
+{
+    std::vector<Tile> path_to_port = find_path(u->tile, player->port->tile, u);
+    if(path_to_port.empty())
+    {
+        return false;
+    } else {
+        if(path_to_port.back() == player->port->tile)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AI::fuzzy_deposit_gold_crew(Unit u)
+{
     return true;
+}
+
+
+bool AI::check_for_reachable_empty_ships(Unit u)
+{
+    std::vector<Unit> empty_ships;
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Unit unit : game->units)
+    {
+        if(unit->ship_health > 0 && unit->crew_health <= 0)
+        {
+            empty_ships.push_back(unit);
+        }
+    }
+    for(Unit unit : empty_ships)
+    {
+        std::vector<Tile> temp = find_path(u->tile, unit->tile, u);
+        if(!temp.empty())
+            possible_paths.push_back(temp);
+    }
+    for(std::vector<Tile> path : possible_paths)
+    {
+        for(Unit unit : empty_ships)
+        {
+            if(path.back() == unit->tile)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool AI::check_for_enemy_treasure_on_island(Unit u)
+{
+    std::vector<Tile> treasure_tiles = get_list_of_enemy_treasure();
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Tile treasure_tile : treasure_tiles)
+    {
+        std::vector<Tile> temp = find_path(u->tile, treasure_tile, u);
+        if(!temp.empty())
+            possible_paths.push_back(temp);
+    }
+    for(std::vector<Tile> path : possible_paths)
+    {
+        for(Tile treasure_tile : treasure_tiles)
+        {
+            if(path.back() == treasure_tile)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool AI::crew_try_to_get_home(Unit u)
+{
+    if(check_on_home_island(u)) //on our home island?
+    {
+        unit_retreat_and_rest(u); //yes, go rest
+        return true;
+    }
+    else {
+        if(check_unit_board_ship(u)) //can we board a ship this turn?
+        {
+            board_ship(u);// yes board the ship
+            return false;
+        }
+        else {
+            request_ship(u);// no request a ship
+            return false;
+        }
+    }
+    return false;
+}
+
+bool AI::check_unit_board_ship(Unit u)
+{
+    std::vector<Unit> ships;
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Unit unit : player->units) {
+        if(unit->ship_health > 0) {
+            ships.push_back(unit);
+        }
+    }
+    for(Unit unit : ships) {
+        std::vector<Tile> temp = find_path(u->tile, unit->tile, u);
+        if(!temp.empty())
+            possible_paths.push_back(temp);
+    }
+    for(std::vector<Tile> path : possible_paths) {
+        for(Unit unit : ships) {
+            if(path.back() == unit->tile) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool AI::board_ship(Unit u)
+{
+    std::vector<Unit> ships;
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Unit unit : player->units) {
+        if(unit->ship_health > 0) {
+            ships.push_back(unit);
+        }
+    }
+    for(Unit ship : ships)
+    {
+        std::vector<Tile> temp = find_path(u->tile, ship->tile, u);
+        if(!temp.empty())
+            possible_paths.push_back(temp);
+    }
+    std::sort(possible_paths.begin(), possible_paths.end(), [](std::vector<Tile> &a, std::vector<Tile> &b) -> bool { return a.size() <= b.size();});
+    Unit chosen_ship;
+    for(std::vector<Tile> path : possible_paths) {
+        for(Unit ship : ships) {
+            if(path.back() == ship->tile) {
+                chosen_ship = ship;
+            }
+        }
+    }
+    if(move_to_tile(u, chosen_ship->tile)) {
+        return true;
+    }
+    return false;
+}
+
+void AI::request_ship(Unit u)
+{
+    return;
 }
 
 bool AI::run_ship_attack(Unit u) //this is gross but enemy and merchants are treated differently in our logic sooo
@@ -345,7 +518,7 @@ float AI::get_ship_danger_level(Unit u)
 
 float AI::get_ship_health_value(Unit u)
 {
-    std::cout << "get_ship_health_value\n";
+    std::cout << "get_ship_health_value";
     return (float)(u->ship_health / game->ship_health);
 }
 
@@ -368,7 +541,7 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 
 bool AI::fuzzy_crew_dig(Unit u, Tile t)
 {
-    std::cout << "fuzzy_crew_dig\n";
+    std::cout << "fuzzy_crew_dig";
     float fuzzy_value = get_crew_dig_fuzzy(u, t);
 
     if( fuzzy_value <= 0.5)
@@ -425,9 +598,7 @@ bool AI::steal_enemy_ship(Unit u)
             if(u->attack(closest_enemy_ship, "crew")) {
                 return true;
             }
-        }
-        else
-        {
+        } else {
             if(u->attack(closest_enemy_ship, "ship"))
             {
                 return true;
