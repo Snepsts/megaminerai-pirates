@@ -138,37 +138,9 @@ public:
     std::vector<Tile> buried_treasure_vec;
     std::vector<Unit> units_requesting_ship;
 
-    // <<-- /Creer-Merge: methods -->>
-    void spawn_units();
-    bool run_ship_turn(Unit u);
-    bool run_crew_turn(Unit u);
-    bool run_ship_attack(Unit u);
-
-    //fuzzy controllers
-    bool attack_instead_of_steal(Unit u);
-    bool go_deposit_ship(Unit u);
-
-    //fuzzy stuff
-    bool fuzzy_deposit_gold_crew(Unit u);
-    bool fuzzy_pickup_units_ship();
-    float get_ship_aggressiveness(Unit u);
-    float get_ship_danger_level(Unit u);
-    float get_ship_health_value(Unit u);
-    float get_crew_dig_fuzzy(Unit u, Tile t);
-    float closeness_to_gold(Unit u);
-    float ship_richness(Unit u);
-    float closeness_to_port(Unit u);
-
-    //fuzzy helpers
-    int get_distance_to_enemy_gold(Unit u);
-
-    bool fuzzy_crew_dig(Unit u, Tile t);
-    float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);
-    float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
-
-    bool fuzzy_steal_or_destroy_enemy_ship(Unit u);
-    bool fuzzy_go_heal_ship(Unit u);
-    bool fuzzy_go_heal_crew(Unit u);
+    //stuff that didn't get hosed
+    bool run_unit_turn(Unit u);
+    bool spawn_units();
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
