@@ -39,12 +39,9 @@ public:
     /// </summary>
     Player player;
 
-    void spawner();
-    void get_action();
     std::vector<Unit> enemyCrew();
     std::vector<Unit> enemyShips();
 
-    bool is_ship(Unit u);
 
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
@@ -83,22 +80,21 @@ public:
     // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional methods here.
     
-    void spawner();
+    void spawn_units();
     void get_action();
 
     std::vector<Unit> get_enemy_crew();
     std::vector<Unit> get_enemy_ships();
     bool is_ship(Unit u);
-    bool deposit_treasure_in_home(Unit u);
     bool move_towards_enemy_treasure(Unit un);
     std::vector<Tile> build_list_of_enemy_treasure();
     bool steal_enemy_treasure(Unit un);
     Tile get_closest_enemy_treasure(Unit un);
 
-    bool move_to_tile(Unit u, Tile t)
+    bool move_to_tile(Unit u, Tile t);
     
     bool steal_enemy_ship(Unit un);
-    
+
     bool deposit_treasure_in_home(Unit u);
 
     bool destroy_enemy_ship(Unit u);

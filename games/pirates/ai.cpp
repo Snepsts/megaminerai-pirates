@@ -63,7 +63,7 @@ void AI::ended(bool won, const std::string& reason)
     //<<-- /Creer-Merge: ended -->>
 }
 
-void AI::spawner()
+void AI::spawn_units()
 {
     std::vector<Unit> ships;
     std::vector<Unit> crew;
@@ -165,8 +165,11 @@ bool AI::destroy_enemy_ship(Unit u)
         }
         else{
             move_to_tile(u, closest_ship->tile);
+            return false;
         }
+        return false;
     }
+    return false;
 }
 
 /// <summary>
@@ -175,7 +178,7 @@ bool AI::destroy_enemy_ship(Unit u)
 /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
 bool AI::run_turn()
 {
-    spawner();
+    spawn_units();
 
     auto my_units = player->units;
 
