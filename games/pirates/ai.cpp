@@ -127,18 +127,15 @@ bool AI::is_ship(Unit u)
 
 bool AI::deposit_treasure_in_home(Unit u)
 {
-    if(!is_ship(u))
+    auto path = this->find_path(u->tile, this->player->port->tile, u);
+    if(path.size() == 0)
     {
-        auto path = this->find_path(u->tile, this->player->port->tile, u);
-        if(path.size() == 0)
-        {
-            u->deposit();
-        } else {
-            u->move(path[0]);
-        }
-        return true;
+        u->deposit();
+        return u->gold == 0;
+    } else {
+        u->move(path[0]);
+        return false;
     }
-    return false;
 }
 
 /// <summary>
