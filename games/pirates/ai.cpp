@@ -213,7 +213,25 @@ float AI::get_ship_aggressiveness(Unit u)
 //Fuzzy functions
 //******************************************************************************************
 
-float AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
+bool AI::fuzzy_go_heal_crew(Unit u)
+{
+    int max_health = this->game->crew_health;
+
+    int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
+
+    int distance = distance_to_port(u);
+    int health = u->crew_health;
+
+    float fuzzy_distance = 1 - (distance / max_distance);
+    float fuzzy_health = 1 - (health / max_health);
+
+    float fuzzy_value = (fuzzy_distance + fuzzy_health) / 2;
+
+    return fuzzy_value >= 0.5;
+
+}
+
+bool AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
 // 0 = steal, 1 = destroy
 {
     auto enemy = get_closest_enemy_ship(u);
@@ -231,7 +249,7 @@ float AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
     return fuzzy_value >= 0.5;
 }
 
-float AI::fuzzy_go_heal_skip(Unit u)
+bool AI::fuzzy_go_heal_ship(Unit u)
 // Returns true if the unit should go heal
 // Returns false if the unit should skip
 {
