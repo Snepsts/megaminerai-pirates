@@ -73,7 +73,14 @@ bool AI::run_turn()
 
     auto my_units = player->units;
 
+    std::vector<Unit> available_units;
+
     for (auto unit : my_units) {
+        if (!unit->acted)
+            available_units.push_back(unit);
+    }
+
+    for (auto unit : available_units) {
         if (is_ship(unit)) {
             run_ship_turn(unit);
         } else {
@@ -86,6 +93,14 @@ bool AI::run_turn()
 
 bool AI::run_ship_turn(Unit u)
 {
+    float decision = get_ship_aggressiveness(u);
+
+    if (decision > 0.5f) {
+        //attack
+    } else {
+        //flee?
+    }
+
     return true;
 }
 
@@ -93,6 +108,46 @@ bool AI::run_crew_turn(Unit u)
 {
     return true;
 }
+
+float AI::get_ship_aggressiveness(Unit u)
+{
+    float ret = 0.0f;
+
+    ret += (1 - get_ship_danger_level(u));
+    ret += get_ship_health_value(u);
+
+    return ret / 2;
+}
+
+float AI::get_ship_danger_level(Unit u)
+{
+    float ret = 0.0f;
+
+    //int enemy_ships = get_close_enemy_ships(u);
+    int enemy_ships = 0;
+    switch (enemy_ships) {
+        case 0:
+            ret += 0.0f;
+            break;
+        case 1:
+            ret += 0.33f;
+            break;
+        case 2:
+            ret += 0.66f;
+            break;
+        case 3:
+            ret += 1.0f;
+            break;
+    }
+
+    return ret;
+}
+
+float AI::get_ship_health_value(Unit u)
+{
+    return (float)(u->ship_health / game->ship_health);
+}
+
 //action functions
 bool AI::steal_enemy_ship(Unit u)
 {
@@ -115,7 +170,7 @@ bool AI::steal_enemy_ship(Unit u)
     }
     else
     {
-        //move_next_to_tile(u, path_to_enemy_ship.back());
+        move_next_to_tile(u, path_to_enemy_ship.back());
         if(u->attack(closest_enemy_ship, "crew"))
         {
             return true;
@@ -305,7 +360,6 @@ bool AI::move_towards_enemy_treasure(Unit u)
     }
     return false;
 }
-//
 
 bool AI::move_to_tile(Unit u, Tile t)
 {
@@ -316,6 +370,20 @@ bool AI::move_to_tile(Unit u, Tile t)
             u->move(path[0]);
     }
     if (u->tile == t)
+        return true;
+    else
+        return false;
+}
+
+bool AI::move_next_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 1)
+            u->move(path[0]);
+    }
+    if (find_path(u->tile, t, u).size() == 1)
         return true;
     else
         return false;
