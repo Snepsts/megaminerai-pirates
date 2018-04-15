@@ -118,18 +118,50 @@ bool AI::run_unit_turn(Unit u)
             }
         }
 
-        // If we found a merchant, move to it, then attack it
-        if (merchant != nullptr)
+        Unit enemy = nullptr;
+        units = player->opponent->units;
+        for (unsigned int i = 0; i < units.size(); i++)
         {
-            // Find a path to this merchant
-            std::vector<Tile> path = this->find_path(u->tile, merchant->tile, u);
+            if (units[i]->target_port != nullptr)
+            {
+                // Found one
+                enemy = units[i];
+                break;
+            }
+        }
+
+
+        int merchant_path = 1000;
+        int enemy_path = 1000;
+
+        if (merchant)
+            merchant_path = find_path(u->tile, merchant->tile, u).size();
+        
+        if (enemy)
+            enemy_path = find_path(u->tile, enemy->tile, u).size();
+        
+        Unit target;
+
+        if (enemy_path == 1000 && merchant_path == 1000)
+            return false;
+
+        if (enemy_path > merchant_path)
+            target = merchant;
+        else
+            target = enemy;
+
+        // If we found a target, move to it, then attack it
+        if (target != nullptr)
+        {
+            // Find a path to this target
+            std::vector<Tile> path = this->find_path(u->tile, target->tile, u);
             if (path.size() > this->game->ship_range)
             {
                 while (path.size() > 0 && u->moves > 0) {
                     u->move(path[0]);
                     path.erase(path.begin());
-                    if (path.size() > this->game->ship_range) {
-                        u->attack(merchant->tile, "ship");
+                    if (path.size() > this->game->ship_range && u->moves > 0) {
+                        u->attack(target->tile, "ship");
                         break;
                     }
                 }
@@ -137,7 +169,7 @@ bool AI::run_unit_turn(Unit u)
             else
             {
                 // Try to attack the merchant's ship
-                u->attack(merchant->tile, "ship");
+                u->attack(target->tile, "ship");
             }
         }
     }
