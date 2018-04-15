@@ -138,6 +138,11 @@ bool AI::deposit_treasure_in_home(Unit u)
     }
 }
 
+bool AI::attack_enemy_ship(Unit u)
+{
+    //auto enemyShips = 
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
