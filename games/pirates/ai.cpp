@@ -645,6 +645,12 @@ int AI::get_close_enemy_ships(Unit u)
             ++count;
     }
 
+    for(auto un : this->game->units)
+    {
+        if(un->target_port != nullptr && this->find_path(u->tile, un->tile, u).size() < 4)
+            ++count;
+    }
+
     return count;
 }
 
