@@ -84,7 +84,8 @@ bool AI::run_turn()
     }
 
     for (auto unit : available_units) {
-        run_crew_turn(unit);
+        if(!is_ship(unit))
+            run_crew_turn(unit);
     }
     for(auto unit : available_units) {
         if (is_ship(unit)) {
@@ -102,6 +103,20 @@ bool AI::run_turn()
 
 //     if (decision > 0.75f) {
 //         destroy_enemy_ship(u);
+
+std::vector<Tile> AI::get_adjacent_tiles(Unit u)
+{
+    std::vector<Tile> results;
+    if(u->tile->tile_north != NULL)
+        results.push_back(u->tile->tile_north);
+    if(u->tile->tile_south != NULL)
+        results.push_back(u->tile->tile_south);
+    if(u->tile->tile_east != NULL)
+        results.push_back(u->tile->tile_east);
+    if(u->tile->tile_west != NULL)
+        results.push_back(u->tile->tile_west);
+    return results;
+}
 //     } else if (decision <= 0.75f || decision >= 0.35f) {
 //         unit_retreat_and_rest(u);
 //     } else { //decision < 0.35
@@ -113,6 +128,7 @@ bool AI::run_turn()
 
 bool AI::run_ship_turn(Unit u)
 {
+    std::cout << "Ship starting turn...\n";
     if(go_deposit_ship(u)) {
         std::cout << "Ship: go_deposit_ship passed\n";
         unit_retreat_and_rest(u);
@@ -150,16 +166,16 @@ bool AI::run_ship_turn(Unit u)
                     std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running ship attack\n";
                     return run_ship_attack(u);
                 } else {
-                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running steal enemy treasure== 1\n";
+                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running steal enemy treasure\n";
                     return ship_steal_enemy_treasure(u);
                 }
             }
         } else {
-            if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
-                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
+            if(fuzzy_steal_or_destroy_enemy_ship(u)) {
+                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called\n";
                 return run_ship_attack(u);
             } else {
-                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
+                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called\n";
                 return ship_steal_enemy_treasure(u);
             }
         }
@@ -231,6 +247,7 @@ int AI::get_distance_to_enemy_gold(Unit u)
 
 bool AI::run_crew_turn(Unit u)
 {
+    std::cout << "Crew: starting turn...\n";
     if(fuzzy_go_heal_crew(u)) //should we go heal?
     {
         std::cout << "Crew: fuzzy_go_heal passed\n";
@@ -261,14 +278,32 @@ bool AI::run_crew_turn(Unit u)
                         std::cout << "Crew: requested_ship called\n";
                         if(u->tile == player->port->tile) { //move off of the spawn tile
                             if(u->tile->tile_north != NULL) {
-                                u->move(u->tile->tile_north);
-                            } else {
-                                if(u->tile->tile_south != NULL) {
-                                    u->move(u->tile->tile_south);
+                                if(find_path(u->tile, u->tile->tile_north, u).size() != 0) {
+                                    u->move(u->tile->tile_north);
+                                    std::cout<<"Crew: stepping off spawn to north\n";
+                                    return false;
                                 }
                             }
+                        } else if(u->tile->tile_south != NULL) {
+                            if(find_path(u->tile, u->tile->tile_south, u).size() != 0) {
+                                u->move(u->tile->tile_south);
+                                std::cout<<"Crew: stepping off spawn to south\n";
+                                return false;
+                            }
+                        } else if(u->tile->tile_west != NULL) {
+                            if(find_path(u->tile, u->tile->tile_west, u).size() != 0) {
+                                u->move(u->tile->tile_west);
+                                std::cout<<"Crew: stepping off spawn to west\n";
+                                return false;
+                            }
+                            return false;
+                        } else if(u->tile->tile_east != NULL) {
+                                if(find_path(u->tile, u->tile->tile_east, u).size() != 0) {
+                                u->move(u->tile->tile_east);
+                                std::cout<<"Crew: stepping off spawn to east\n";
+                                return false;
+                            }
                         }
-                        return false;
                     }
                 }
             }
@@ -551,7 +586,7 @@ bool AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
 // false = steal, true = destroy
 {
     auto enemy = get_closest_enemy_ship(u);
-
+    std::vector<Unit> enemy_ships_not_on_spawn;
     int my_health = u->ship_health;
     int enemy_ship_health = enemy->unit == nullptr ? 0 : enemy->unit->ship_health;
     int enemy_crew_health = enemy->unit == nullptr ? 0 : enemy->unit->crew_health;
@@ -1242,22 +1277,22 @@ void AI::spawn_units()
         crew += unit->crew;
     }
 
-    if (crew == 0) {
+    if (crew == 0 && player->gold >= game->crew_cost) {
         this->player->port->spawn("crew");
     }
     
-    if (ships == 0) {
+    if (ships == 0 && player->gold >= game->ship_cost) {
         this->player->port->spawn("ship");
     } else {
         float ratio = crew / ships;
-        if (ratio < 3)
+        if (ratio < 3 && player->gold >= game->crew_cost)
             this->player->port->spawn("crew");
-        else
+        else if (player->gold >= game->ship_cost)
             this->player->port->spawn("ship");
     }
 
     if (player->port->tile->unit)
-        if (player->port->tile->unit->ship_health > 0)
+        if (player->port->tile->unit->ship_health > 0 && player->gold >= game->crew_cost)
             this->player->port->spawn("crew");
 }
 
@@ -1276,12 +1311,37 @@ std::vector<Unit> AI::get_enemy_ships()
 {
     //std::cout << "get_enemy_ships\n";
     std::vector<Unit> ships;
+    std::vector<Unit> ships_not_protected;
     for(auto u : this->player->opponent->units)
     {
         if(u->ship_health != 0)
             ships.push_back(u);
     }
-    return ships;
+    for(Unit ship : ships)
+    {
+        if(!unit_god_mode(ship))
+        {
+            ships_not_protected.push_back(ship);
+        }
+    }
+    return ships_not_protected;
+}
+
+bool AI::unit_god_mode(Unit u)
+{
+    std::vector<Tile> adjacent_tiles = get_adjacent_tiles(u);
+    for(Tile tile : adjacent_tiles)
+    {
+        if(tile == player->opponent->port->tile)
+        {
+            return true;
+        }
+    }
+    if(u->tile == player->opponent->port->tile)
+    {
+        return true;
+    }
+    return false;
 }
 
 bool AI::is_ship(Unit u)

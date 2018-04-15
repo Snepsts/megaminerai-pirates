@@ -128,6 +128,10 @@ public:
     int distance_to_port(Unit u);
     int distance_to_unit(Unit u1, Unit u2);
 
+    bool unit_god_mode(Unit u);
+    std::vector<Tile> get_adjacent_tiles(Unit u);
+
+
     //
     // Properties
     //
