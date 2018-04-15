@@ -140,7 +140,7 @@ bool AI::deposit_treasure_in_home(Unit u)
     }
 }
 
-bool AI::attack_enemy_ship(Unit u)
+bool AI::destroy_enemy_ship(Unit u)
 {
     auto enemy_ships = get_enemy_ships();
     if(enemy_ships.size() > 0)
@@ -164,7 +164,7 @@ bool AI::attack_enemy_ship(Unit u)
             return closest_ship->ship_health == 0;
         }
         else{
-            
+            move_to_tile(u, closest_ship->tile);
         }
     }
 }

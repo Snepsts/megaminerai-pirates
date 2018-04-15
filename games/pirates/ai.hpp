@@ -46,10 +46,6 @@ public:
 
     bool is_ship(Unit u);
 
-    bool deposit_treasure_in_home(Unit u);
-
-    bool attack_enemy_ship(Unit u);
-
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
     //<<-- /Creer-Merge: class variables -->>
@@ -102,6 +98,10 @@ public:
     bool move_to_tile(Unit u, Tile t)
     
     bool steal_enemy_ship(Unit un);
+    
+    bool deposit_treasure_in_home(Unit u);
+
+    bool destroy_enemy_ship(Unit u);
     // <<-- /Creer-Merge: methods -->>
 
     bool run_ship_turn(Unit u);
