@@ -118,6 +118,7 @@ public:
     bool move_to_tile(Unit u, Tile t);
     bool move_next_to_tile(Unit u, Tile t);
     bool is_ship(Unit u);
+    int distance_to_port(Unit u);
 
     //
     // Properties
@@ -141,6 +142,7 @@ public:
     float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
 
     float fuzzy_steal_or_destroy_enemy_ship(Unit u);
+    float fuzzy_go_heal_skip(Unit u);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
