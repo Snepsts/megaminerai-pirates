@@ -38,7 +38,6 @@ public:
     /// This is a pointer to your AI's player. This AI class is not a player, but it should command this Player.
     /// </summary>
     Player player;
-
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
     //<<-- /Creer-Merge: class variables -->>
@@ -76,7 +75,7 @@ public:
     // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional methods here.
     
-    void spawner();
+    void spawn_units();
     void get_action();
 
     std::vector<Unit> get_enemy_crew();
@@ -89,8 +88,11 @@ public:
     Tile get_closest_enemy_treasure(Unit u);
     Tile get_closest_enemy_ship(Unit u);
     bool steal_enemy_ship(Unit u);
+    bool move_to_tile(Unit u, Tile t);
+    bool destroy_enemy_ship(Unit u);
     // <<-- /Creer-Merge: methods -->>
-
+    bool run_ship_turn(Unit u);
+    bool run_crew_turn(Unit u);
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
 /// <param name="goal">the goal Tile</param>

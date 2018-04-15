@@ -16,6 +16,8 @@ namespace cpp_client
 namespace pirates
 {
 
+bool is_ship(Unit u);
+
 /// <summary>
 /// This returns your AI's name to the game server.
 /// Replace the string name.
@@ -61,7 +63,7 @@ void AI::ended(bool won, const std::string& reason)
     //<<-- /Creer-Merge: ended -->>
 }
 
-void AI::spawner()
+void AI::spawn_units()
 {
     std::vector<Unit> ships;
     std::vector<Unit> crew;
@@ -138,85 +140,66 @@ bool AI::deposit_treasure_in_home(Unit u)
     }
 }
 
+bool AI::destroy_enemy_ship(Unit u)
+{
+    auto enemy_ships = get_enemy_ships();
+    if(enemy_ships.size() > 0)
+    {
+        Unit closest_ship = enemy_ships[0];
+        size_t distance = this->find_path(u->tile, enemy_ships[0]->tile, u).size();
+        for(auto es : enemy_ships)
+        {
+            auto current_distance = this->find_path(u->tile, es->tile, u).size();
+            if(current_distance < distance)
+            {
+                closest_ship = es;
+                distance = current_distance;
+            }
+        }
+
+        auto path = this->find_path(u->tile, closest_ship->tile, u);
+        if(path.size() <= 3)
+        {
+            u->attack(closest_ship->tile, "ship");
+            return closest_ship->ship_health == 0;
+        }
+        else{
+            move_to_tile(u, closest_ship->tile);
+            return false;
+        }
+        return false;
+    }
+    return false;
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
 /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
 bool AI::run_turn()
 {
-    spawner();
-    // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
+    spawn_units();
 
-    // if (this->player->units.size() == 0)
-    // {
-    //     // Spawn a crew if we have no units
-    //     this->player->port->spawn("crew");
-    // }
-    // else if (this->player->units[0]->ship_health == 0)
-    // {
-    //     // Spawn a ship so our crew can sail
-    //     this->player->port->spawn("ship");
-    // }
-    // else if (this->player->units[0]->ship_health < this->game->ship_health / 2)
-    // {
-    //     // Heal our unit if the ship is almost dead
-    //     // Node: Crew also have their own health. Maybe try adding a check to see if the crew need healing?
-    //     Unit unit = this->player->units[0];
+    auto my_units = player->units;
 
-    //     // Find a path to our port so we can heal
-    //     std::vector<Tile> path = this->find_path(unit->tile, this->player->port->tile, unit);
-    //     if (path.size() > 0)
-    //     {
-    //         // Move along the path if there is one
-    //         unit->move(path[0]);
-    //     }
-    //     else
-    //     {
-    //         // Try to deposit any gold we have while we're here
-    //         unit->deposit();
+    for (auto unit : my_units) {
+        if (is_ship(unit)) {
+            run_ship_turn(unit);
+        } else {
+            run_crew_turn(unit);
+        }
+    }
+    
+    return true;
+}
 
-    //         // Try to rest
-    //         unit->rest();
-    //     }
-    // }
-    // else
-    // {
-    //     // Try to attack a merchant
-    //     Unit unit = this->player->units[0];
+bool AI::run_ship_turn(Unit u)
+{
+    return true;
+}
 
-    //     // Look for a merchant ship
-    //     Unit merchant = NULL;
-    //     std::vector<Unit> units = this->game->units;
-    //     for (unsigned int i = 0; i < units.size(); i++)
-    //     {
-    //         if (units[i]->target_port != NULL)
-    //         {
-    //             // Found one
-    //             merchant = units[i];
-    //             break;
-    //         }
-    //     }
-
-    //     // If we found a merchant, move to it, then attack it
-    //     if (merchant != NULL)
-    //     {
-    //         // Find a path to this merchant
-    //         std::vector<Tile> path = this->find_path(unit->tile, merchant->tile, unit);
-    //         if (path.size() > this->game->ship_range)
-    //         {
-    //             // Move until we're withing firing range of the merchant
-    //             // Node: Range is *Circular* in pirates, so this can be improved on
-    //             unit->move(path[0]);
-    //         }
-    //         else
-    //         {
-    //             // Try to attack the merchant's ship
-    //             unit->attack(merchant->tile, "ship");
-    //         }
-    //     }
-    // }
-
-    // <<-- /Creer-Merge: runTurn -->>
+bool AI::run_crew_turn(Unit u)
+{
     return true;
 }
 //action functions
@@ -386,6 +369,20 @@ bool AI::move_towards_enemy_treasure(Unit u)
 }
 //
 
+bool AI::move_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 0)
+            u->move(path[0]);
+    }
+    if (u->tile == t)
+        return true;
+    else
+        return false;
+}
+
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
 /// <param name="goal">the goal Tile</param>
@@ -466,7 +463,12 @@ std::vector<Tile> AI::find_path(const Tile& start, const Tile& goal, const Unit&
 }
 
 //<<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-// You can add additional methods here for your AI to call
+
+bool is_ship(Unit u)
+{
+    return u->ship_health > 0;
+}
+
 //<<-- /Creer-Merge: methods -->>
 
 } // pirates
