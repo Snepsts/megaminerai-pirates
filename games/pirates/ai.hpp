@@ -87,6 +87,7 @@ public:
     Tile get_closest_enemy_ship(Unit u);
     int get_close_enemy_ships(Unit u);
     Tile get_closest_port(Unit u);
+    
     //
     //Action Definitions
     //
