@@ -80,31 +80,39 @@ public:
     // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional methods here.
     
-    void spawn_units();
     void get_action();
 
-    std::vector<Unit> get_enemy_crew();
-    std::vector<Unit> get_enemy_ships();
-    bool is_ship(Unit u);
+    //
+    //Action Definitions
+    //
     bool move_towards_enemy_treasure(Unit un);
-    std::vector<Tile> build_list_of_enemy_treasure();
-    bool steal_enemy_treasure(Unit un);
-    Tile get_closest_enemy_treasure(Unit un);
-
-    bool move_to_tile(Unit u, Tile t);
     
+    bool steal_enemy_treasure(Unit un);
+
     bool steal_enemy_ship(Unit un);
 
     bool deposit_treasure_in_home(Unit u);
 
     bool destroy_enemy_ship(Unit u);
+
+    //
+    // Helper method delcarations
+    //
+    bool is_ship(Unit u);
+    std::vector<Unit> get_enemy_crew();
+    std::vector<Unit> get_enemy_ships();
+    std::vector<Tile> build_list_of_enemy_treasure();
+    void spawn_units();
+    bool move_to_tile(Unit u, Tile t);
+    int get_close_enemy_ships(Unit u);
+    Tile get_closest_enemy_treasure(Unit un);
+
+
     // <<-- /Creer-Merge: methods -->>
 
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
-    // Helper method delcarations
-    int get_close_enemy_ships(Unit u);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
