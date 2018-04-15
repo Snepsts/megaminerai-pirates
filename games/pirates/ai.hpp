@@ -87,7 +87,7 @@ public:
     Tile get_closest_enemy_ship(Unit u);
     int get_close_enemy_ships(Unit u);
     Tile get_closest_port(Unit u);
-    
+
     //
     //Action Definitions
     //
@@ -98,6 +98,7 @@ public:
     bool destroy_enemy_ship(Unit u);
     bool unit_retreat_and_rest(Unit u);
     bool crew_bury_treasure(Unit u);
+    bool crew_dig_treasure(Unit u, Tile t);
 
     //
     // Helper method delcarations

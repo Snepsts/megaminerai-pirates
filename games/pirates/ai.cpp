@@ -294,6 +294,16 @@ bool AI::crew_bury_treasure(Unit u)
     return false;
 }
 
+bool AI::crew_dig_treasure(Unit u, Tile t)
+{
+    move_to_tile(u, t);
+    if(u->tile == t)
+    {
+        return u->dig(-1);
+    }
+    return false;
+}
+
 //**************************************************************************************************
 //helper functions
 //**************************************************************************************************
