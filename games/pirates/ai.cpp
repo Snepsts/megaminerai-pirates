@@ -135,22 +135,22 @@ bool AI::run_ship_turn(Unit u)
                 }
                 else
                 {
-                    if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
-                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
+                    if(fuzzy_steal_or_destroy_enemy_ship(u)) {
+                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running ship attack\n";
                         return run_ship_attack(u);
                     } else {
-                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
+                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called steal enemy treasure\n";
                         return ship_steal_enemy_treasure(u);
                     }
                 }
-            } else {
+            } else { //  should be pickup any unit check against going to attack
                 //?
                 std::cout << "Ship: fuzzy_pickup_units_ship failed or no units_requesting_ship\n";
-                if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
-                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
+                if(fuzzy_steal_or_destroy_enemy_ship(u)) {
+                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running ship attack\n";
                     return run_ship_attack(u);
                 } else {
-                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
+                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called running steal enemy treasure== 1\n";
                     return ship_steal_enemy_treasure(u);
                 }
             }
@@ -251,9 +251,25 @@ bool AI::run_crew_turn(Unit u)
                     std::cout << "Crew: check_unit_board_ship passed\n";
                     return board_ship(u);
                 } else {
-                    request_ship(u); //requested a ship
-                    std::cout << "Crew: requested_ship called\n";
-                    return false;
+                    if(check_unit_board_ship(u))
+                    {
+                        board_ship(u);
+                    }
+                    else
+                    {
+                        request_ship(u); //requested a ship
+                        std::cout << "Crew: requested_ship called\n";
+                        if(u->tile == player->port->tile) { //move off of the spawn tile
+                            if(u->tile->tile_north != NULL) {
+                                u->move(u->tile->tile_north);
+                            } else {
+                                if(u->tile->tile_south != NULL) {
+                                    u->move(u->tile->tile_south);
+                                }
+                            }
+                        }
+                        return false;
+                    }
                 }
             }
         }
@@ -428,13 +444,17 @@ bool AI::run_ship_attack(Unit u) //this is gross but enemy and merchants are tre
     merchant_decision /= 2;
 
     if (merchant_decision > enemy_decision) { //favor merchants
-            return destroy_merchant_ship(u);
+        std::cout << "Ship: going to attack merchant ship\n";
+        return destroy_merchant_ship(u);
     }
     //else
-    if (enemy_decision > 0.5f) //higher value means ranged attack
+    if (enemy_decision > 0.5f) { //higher value means ranged attack
+        std::cout << "Ship: going to attak enemy player ship\n";
         return destroy_enemy_ship(u);
-    else
+    } else {
+        std::cout << "Ship: going to steal enemy player ship\n";
         return steal_enemy_ship(u);
+    }
 
 }
 
@@ -979,6 +999,7 @@ Tile AI::get_closest_merchant_ship(Unit u)
 
     if(merchants.size() > 0)
     {
+        std::cout << "Helper function: Merchant ship found!\n";
         Unit m = merchants[0];
         auto distance = this->find_path(u->tile, m->tile, u).size();
         for(auto merch : merchants)
