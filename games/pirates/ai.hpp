@@ -89,6 +89,8 @@ public:
     Tile get_closest_empty_ship(Unit u);
     Tile get_closest_port(Unit u);
     Tile get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options);
+    std::vector<std::vector<Tile>> get_all_possible_paths_to_options(Unit u, std::vector<Tile> tile_options);
+
     
     //
     //Action Definitions
@@ -103,7 +105,7 @@ public:
     bool board_empty_ship(Unit u);
     bool crew_bury_treasure(Unit u);
     bool crew_dig_treasure(Unit u, Tile t);
-    
+    bool pickup_units_with_gold(Unit u);
 
     //
     // Helper method delcarations
