@@ -107,11 +107,14 @@ public:
     void spawn_units();
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
+    bool run_ship_attack(Unit u);
 
     //fuzzy stuff
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
+    float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);
+    float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>

@@ -182,7 +182,7 @@ bool AI::run_turn()
 
     auto my_units = player->units;
 
-    std::vector<Unit> available_units;
+    std::vector<Unit> available_units; //in case we rerun the function
 
     for (auto unit : my_units) {
         if (!unit->acted)
@@ -205,9 +205,9 @@ bool AI::run_ship_turn(Unit u)
     float decision = get_ship_aggressiveness(u);
 
     if (decision > 0.5f) {
-        //attack
+        destroy_enemy_ship(u);
     } else {
-        //flee?
+        //not sure
     }
 
     return true;
@@ -216,6 +216,32 @@ bool AI::run_ship_turn(Unit u)
 bool AI::run_crew_turn(Unit u)
 {
     return true;
+}
+
+bool AI::run_ship_attack(Unit u)
+{
+    float decision = 0.0f;
+    Tile enemy_ship = get_closest_enemy_ship(u);
+
+    decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
+    decision += get_enemy_ship_crew_value(u, enemy_ship); 
+    decision /= 2;
+
+    if (decision > 0.5f) //higher value means ranged attack
+        return destroy_enemy_ship(u);
+    else
+        return steal_enemy_ship(u);
+
+}
+
+float AI::get_enemy_ship_health_value(Unit u, Tile enemy_ship)
+{
+    return (float)(enemy_ship->unit->ship_health / game->ship_health);
+}
+
+float AI::get_enemy_ship_crew_value(Unit u, Tile enemy_ship)
+{ //favor them more so if we get a higher value we know our crew is definitely better
+    return 1.0f - (float)(u->crew_health / 1.3f) / enemy_ship->unit->crew_health;
 }
 
 float AI::get_ship_aggressiveness(Unit u)
@@ -232,8 +258,7 @@ float AI::get_ship_danger_level(Unit u)
 {
     float ret = 0.0f;
 
-    //int enemy_ships = get_close_enemy_ships(u);
-    int enemy_ships = 0;
+    int enemy_ships = get_close_enemy_ships(u);
     switch (enemy_ships) {
         case 0:
             ret += 0.0f;
@@ -245,6 +270,9 @@ float AI::get_ship_danger_level(Unit u)
             ret += 0.66f;
             break;
         case 3:
+            ret += 1.0f;
+            break;
+        default:
             ret += 1.0f;
             break;
     }
