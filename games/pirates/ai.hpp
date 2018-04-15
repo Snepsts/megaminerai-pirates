@@ -86,9 +86,11 @@ public:
     Tile get_closest_enemy_treasure(Unit u);
     Tile get_closest_enemy_ship(Unit u);
     int get_close_enemy_ships(Unit u);
+    Tile get_closest_port(Unit u);
     //
     //Action Definitions
     //
+    bool heal_ship(Unit u);
     bool deposit_treasure_in_home(Unit u);
     bool steal_enemy_treasure(Unit u);
     bool steal_enemy_ship(Unit u);

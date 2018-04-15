@@ -149,6 +149,22 @@ float AI::get_ship_health_value(Unit u)
 }
 
 //action functions
+bool AI::heal_ship(Unit u)
+{
+    Tile closest_port = get_closest_port(u);
+    if(closest_port == NULL) {
+        return false;
+    }
+    else {
+        if(move_next_to_tile(u, closest_port))
+        {
+            u->rest();
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
 bool AI::steal_enemy_ship(Unit u)
 {
     Tile closest_enemy_ship = get_closest_enemy_ship(u);
@@ -276,6 +292,43 @@ bool AI::crew_bury_treasure(Unit u)
 }
 
 //helper functions
+Tile AI::get_closest_port(Unit u)
+{
+    std::vector<std::vector<Tile>> possible_paths;
+    std::vector<Tile> possible_ports;
+    for(Tile possible_port : game->tiles)
+    {
+        if(possible_port->port != NULL)
+        {
+            if(possible_port->port->owner == NULL)
+            {
+                possible_ports.push_back(possible_port);
+            }
+            else if(possible_port->port->owner != player->opponent)
+            {
+                possible_ports.push_back(possible_port);
+            }
+        }
+    }
+    for(Tile port : possible_ports) {
+        std::vector<Tile> path = find_path(u->tile, port, u);
+        possible_paths.push_back(path);
+    }
+    unsigned smallest = 999;
+    Tile closest_tile = NULL;
+    std::vector<Tile> smallest_path;
+    for(std::vector<Tile> possible_path : possible_paths)
+    {
+        if(possible_path.size() != 0 && possible_path.size() < smallest)
+        {
+            smallest = possible_path.size();
+            smallest_path = possible_path;
+            closest_tile = possible_path.back();
+        }
+    }
+    return closest_tile;
+}
+
 Tile AI::get_closest_enemy_ship(Unit u)
 {
     std::vector<std::vector<Tile>> possible_paths;
