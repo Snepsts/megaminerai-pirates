@@ -6,6 +6,7 @@
 #include<map>
 #include<string>
 #include<algorithm>
+#include<iostream>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
 // You can add #includes here for your AI.
 // <<-- /Creer-Merge: includes -->>
@@ -70,6 +71,7 @@ void AI::ended(bool won, const std::string& reason)
 /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
 bool AI::run_turn()
 {
+    std::cout << "Running Turn\n";
     spawn_units();
 
     auto my_units = player->units;
@@ -94,9 +96,11 @@ bool AI::run_turn()
 
 bool AI::run_ship_turn(Unit u)
 {
+    std::cout << "run_ship_turn\n";
     float decision = get_ship_aggressiveness(u);
 
     if (decision > 0.5f) {
+
         destroy_enemy_ship(u);
     } else {
         unit_retreat_and_rest(u);
@@ -107,11 +111,13 @@ bool AI::run_ship_turn(Unit u)
 
 bool AI::run_crew_turn(Unit u)
 {
+    std::cout << "run_crew_turn\n";
     return true;
 }
 
 bool AI::run_ship_attack(Unit u)
 {
+    std::cout << "run_ship_attack\n";
     float decision = 0.0f;
     Tile enemy_ship = get_closest_enemy_ship(u);
     Tile merchant_ship = get_closest_merchant_ship(u);
@@ -129,16 +135,19 @@ bool AI::run_ship_attack(Unit u)
 
 float AI::get_enemy_ship_health_value(Unit u, Tile enemy_ship)
 {
+    std::cout << "get_enemy_ship_health_value\n";
     return (float)(enemy_ship->unit->ship_health / game->ship_health);
 }
 
 float AI::get_enemy_ship_crew_value(Unit u, Tile enemy_ship)
 { //favor them more so if we get a higher value we know our crew is definitely better
+    std::cout << "get_enemy_ship_crew_value\n";
     return 1.0f - (float)(u->crew_health / 1.3f) / enemy_ship->unit->crew_health;
 }
 
 float AI::get_ship_aggressiveness(Unit u)
 {
+    std::cout << "get_ship_aggressiveness\n";
     float ret = 0.0f;
 
     ret += (1 - get_ship_danger_level(u));
@@ -153,6 +162,7 @@ float AI::get_ship_aggressiveness(Unit u)
 
 float AI::get_ship_danger_level(Unit u)
 {
+    std::cout << "get_ship_danger_level\n";
     float ret = 0.0f;
 
     int enemy_ships = get_close_enemy_ships(u);
@@ -179,11 +189,13 @@ float AI::get_ship_danger_level(Unit u)
 
 float AI::get_ship_health_value(Unit u)
 {
+    std::cout << "get_ship_health_value\n";
     return (float)(u->ship_health / game->ship_health);
 }
 
 float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 {
+    std::cout << "get_crew_dig_fizzy\n";
     //float fuzzy = 0.0;
 
     int highest_gold = 0;
@@ -200,6 +212,7 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 
 bool AI::fuzzy_crew_dig(Unit u, Tile t)
 {
+    std::cout << "fuzzy_crew_dig\n";
     float fuzzy_value = get_crew_dig_fuzzy(u, t);
 
     if( fuzzy_value <= 0.5)
@@ -220,6 +233,7 @@ bool AI::fuzzy_crew_dig(Unit u, Tile t)
 //**************************************************************************************************
 bool AI::heal_ship(Unit u)
 {
+    std::cout << "heal_ship\n";
     Tile closest_port = get_closest_port(u);
     if(closest_port == NULL) {
         return false;
@@ -236,6 +250,7 @@ bool AI::heal_ship(Unit u)
 }
 bool AI::steal_enemy_ship(Unit u)
 {
+    std::cout << "steal_enemy_ship\n";
     Tile closest_enemy_ship = get_closest_enemy_ship(u);
     if(closest_enemy_ship == NULL) {
         return false; //no enemy ship
@@ -268,6 +283,7 @@ bool AI::steal_enemy_ship(Unit u)
 
 bool AI::board_empty_ship(Unit u)
 {
+    std::cout << "board_empty_ship\n";
     Tile closest_empty_ship = get_closest_empty_ship(u);
     int current_crew = u->crew;
     if(move_next_to_tile(u, closest_empty_ship))
@@ -282,6 +298,7 @@ bool AI::board_empty_ship(Unit u)
 
 bool AI::ship_steal_enemy_treasure(Unit u)
 {
+    std::cout << "ship_steal_enemy_treasure\n";
     Tile closest_enemy_treasure = get_closest_enemy_treasure(u);
     if(closest_enemy_treasure == NULL) 
     {
@@ -303,6 +320,7 @@ bool AI::steal_enemy_treasure(Unit u)
 //Trys to steal enemy treasure by moving to it and digging
 //will return false in any case that is not the unit digging treasure
 {
+    std::cout << "steal_enemy_treasure\n";
     //check if possible
     Tile closest_enemy_treasure = get_closest_enemy_treasure(u);
     if(closest_enemy_treasure == NULL) 
@@ -342,6 +360,7 @@ bool AI::destroy_enemy_ship(Unit u)
 //Moves unit towards nearest enemy ship and attacks it if it is within 3 spaces
 //Returns true only if the enemy ship is destroyed
 {
+    std::cout << "destroy_enemy_ship\n";
     auto enemy_ships = get_enemy_ships();
     if(enemy_ships.size() > 0)
     {
@@ -374,6 +393,7 @@ bool AI::destroy_enemy_ship(Unit u)
 
 bool AI::pickup_units_with_gold(Unit u)
 {
+    std::cout << "pickup_units_with_gold\n";
     std::vector<Unit> units_with_gold;
     std::vector<Tile> unit_tiles;
     for(Unit unit : player->units) {
@@ -447,6 +467,7 @@ bool AI::pickup_units_with_gold(Unit u)
 
 std::vector<std::vector<Tile>> AI::get_all_possible_paths_to_options(Unit u, std::vector<Tile> tile_options)
 {
+    std::cout << "get_all_possible_paths_to_options\n";
     std::vector<std::vector<Tile>> possible_paths;
     for(Tile tile_option : tile_options)
     {
@@ -461,6 +482,7 @@ std::vector<std::vector<Tile>> AI::get_all_possible_paths_to_options(Unit u, std
 
 bool AI::destroy_merchant_ship(Unit u)
 {
+    std::cout << "destroy_merchant_ship\n";
     Tile closest_ship_tile = get_closest_merchant_ship(u);
     auto path = this->find_path(u->tile, closest_ship_tile, u);
     if(path.size() > 3)
@@ -480,6 +502,7 @@ bool AI::destroy_merchant_ship(Unit u)
 bool AI::unit_retreat_and_rest(Unit u)
 //Moves unit towards the home port and rests once it is within 3 spaces of it
 {
+    std::cout << "unit_retreat_and_rest\n";
     move_next_to_tile(u, this->player->port->tile);
     auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
     if(distance_to_port == 0)
@@ -494,6 +517,7 @@ bool AI::crew_bury_treasure(Unit u)
 //Checks if the unit has gold and buries it there.  If the tile doesnt have gold in it previously
 //it is added to the buried treasure vector
 {
+    std::cout << "crew_bury_treasure\n";
     if(u->gold > 0)
     {
         if(std::find(buried_treasure_vec.begin(), buried_treasure_vec.end(), u->tile) == buried_treasure_vec.end())
@@ -506,6 +530,7 @@ bool AI::crew_bury_treasure(Unit u)
 
 bool AI::crew_dig_treasure(Unit u, Tile t)
 {
+    std::cout << "crew_dig_treasure\n";
     move_to_tile(u, t);
     if(u->tile == t)
     {
@@ -519,6 +544,7 @@ bool AI::crew_dig_treasure(Unit u, Tile t)
 //**************************************************************************************************
 Tile AI::get_closest_empty_ship(Unit u)
 {
+    std::cout << "get_closest_empty_ship\n";
     std::vector<std::vector<Tile>> possible_paths;
     std::vector<Tile> empty_ship_tiles;
     for(Unit possible_empty_ship : game->units) {
@@ -534,6 +560,7 @@ Tile AI::get_closest_empty_ship(Unit u)
 
 Tile AI::get_closest_merchant_ship(Unit u)
 {
+    std::cout << "get_closest_merchant_ship\n";
     std::vector<Unit> merchants;
     for(auto un : this->game->units)
     {
@@ -558,6 +585,7 @@ Tile AI::get_closest_merchant_ship(Unit u)
 
 Tile AI::get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options)
 {
+    std::cout << "get_closest_tile_from_options\n";
     unsigned smallest = 999;
     Tile closest_tile = NULL;
     std::vector<Tile> smallest_path;
@@ -584,6 +612,7 @@ Tile AI::get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options)
 
 Tile AI::get_closest_port(Unit u)
 {
+    std::cout << "get_closest_port\n";
     std::vector<std::vector<Tile>> possible_paths;
     std::vector<Tile> possible_ports;
     for(Tile possible_port : game->tiles)
@@ -621,6 +650,7 @@ Tile AI::get_closest_port(Unit u)
 
 Tile AI::get_closest_enemy_ship(Unit u)
 {
+    std::cout << "get_closest_enemy_ship\n";
     std::vector<std::vector<Tile>> possible_paths;
     std::vector<Unit> enemy_ships = get_enemy_ships();
     for(Unit enemy_ship : enemy_ships) {
@@ -644,6 +674,7 @@ Tile AI::get_closest_enemy_ship(Unit u)
 
 std::vector<Tile> AI::get_list_of_enemy_treasure()
 {
+    std::cout << "get_list_of_enemy_treasure\n";
     bool ours = false;
     std::vector<Tile> enemy_treasure_tiles;
     for(Tile tile : this->game->tiles)
@@ -673,6 +704,7 @@ std::vector<Tile> AI::get_list_of_enemy_treasure()
 
 Tile AI::get_closest_enemy_treasure(Unit u)
 {
+    std::cout << "get_closest_enemy_treasure\n";
     std::vector<Tile> enemy_treasures = get_list_of_enemy_treasure();
     unsigned largest = 999;
     Tile closest_tile = NULL;
@@ -702,6 +734,7 @@ Tile AI::get_closest_enemy_treasure(Unit u)
 
 bool AI::move_towards_enemy_treasure(Unit u)
 {
+    std::cout << "move_towards_enemy_treasure\n";
     Tile closest_tile = get_closest_enemy_treasure(u);
     if(closest_tile == NULL)
         return false; // no treasure
@@ -718,6 +751,7 @@ bool AI::move_towards_enemy_treasure(Unit u)
 
 bool AI::move_to_tile(Unit u, Tile t)
 {
+    std::cout << "move_to_tile\n";
     while(u->moves > 0)
     {
         auto path = this->find_path(u->tile, t, u);
@@ -732,11 +766,14 @@ bool AI::move_to_tile(Unit u, Tile t)
 
 bool AI::move_next_to_tile(Unit u, Tile t)
 {
+    std::cout << "move_next_to_tile\n";
     while(u->moves > 0)
     {
         auto path = this->find_path(u->tile, t, u);
         if(path.size() > 1)
             u->move(path[0]);
+        else
+            break;
     }
     if (find_path(u->tile, t, u).size() == 1)
         return true;
@@ -746,6 +783,7 @@ bool AI::move_next_to_tile(Unit u, Tile t)
 
 int AI::get_close_enemy_ships(Unit u)
 {
+    std::cout << "get_close_enemy_ships\n";
     int count = 0;
     auto enemy_ships = get_enemy_ships();
     for(auto es : enemy_ships)
@@ -766,6 +804,7 @@ int AI::get_close_enemy_ships(Unit u)
 
 void AI::spawn_units()
 {
+    std::cout << "spawn_units\n";
     int ships = 0;
     int crew = 0;
 
@@ -807,6 +846,7 @@ std::vector<Unit> AI::get_enemy_crew()
 
 std::vector<Unit> AI::get_enemy_ships()
 {
+    std::cout << "get_enemy_ships\n";
     std::vector<Unit> ships;
     for(auto u : this->player->opponent->units)
     {
@@ -818,11 +858,13 @@ std::vector<Unit> AI::get_enemy_ships()
 
 bool AI::is_ship(Unit u)
 {
+    std::cout << "is_ship\n";
     return u->ship_health > 0;
 }
 
 bool AI::deposit_treasure_in_home(Unit u)
 {
+    std::cout << "deposit_treasure_in_home\n";
     auto path = this->find_path(u->tile, this->player->port->tile, u);
     if(path.size() == 0)
     {
@@ -836,6 +878,7 @@ bool AI::deposit_treasure_in_home(Unit u)
 
 Tile AI::get_nearest_port(Unit u)
 {
+    std::cout << "get_nearest_port\n";
     std::vector<Tile> docks;
     for(auto t : this->game->tiles)
     {
