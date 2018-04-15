@@ -84,10 +84,11 @@ bool AI::run_turn()
     }
 
     for (auto unit : available_units) {
+        run_crew_turn(unit);
+    }
+    for(auto unit : available_units) {
         if (is_ship(unit)) {
             run_ship_turn(unit);
-        } else {
-            run_crew_turn(unit);
         }
     }
     
@@ -145,6 +146,7 @@ bool AI::run_ship_turn(Unit u)
             }
         }
     }
+    return false;
 }
 
 bool AI::fuzzy_pickup_units_ship()

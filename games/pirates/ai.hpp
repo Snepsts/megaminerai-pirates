@@ -165,7 +165,6 @@ public:
     bool fuzzy_steal_or_destroy_enemy_ship(Unit u);
     bool fuzzy_go_heal_ship(Unit u);
     bool fuzzy_go_heal_crew(Unit u);
-    bool fuzzy_deposit_gold_crew(Unit u);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
