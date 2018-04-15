@@ -103,6 +103,9 @@ public:
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
+    // Helper method delcarations
+    int get_close_enemy_ships(Unit u);
+
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
 /// <param name="goal">the goal Tile</param>
