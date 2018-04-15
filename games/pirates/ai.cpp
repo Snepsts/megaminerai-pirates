@@ -90,7 +90,7 @@ void AI::spawner()
     }
 }
 
-std::vector<Unit> AI::enemyCrew()
+std::vector<Unit> AI::get_enemy_crew()
 {
     std::vector<Unit> crew;
     for(auto u : this->player->opponent->units)
@@ -101,7 +101,7 @@ std::vector<Unit> AI::enemyCrew()
     return crew;
 }
 
-std::vector<Unit> AI::enemyShips()
+std::vector<Unit> AI::get_enemy_ships()
 {
     std::vector<Unit> ships;
     for(auto u : this->player->opponent->units)
@@ -259,6 +259,7 @@ bool AI::steal_enemy_treasure(Unit un)
             }
         }
     }
+    return false; //error
 }
 //helper functions
 std::vector<Tile> AI::build_list_of_enemy_treasure()
@@ -285,12 +286,13 @@ std::vector<Tile> AI::build_list_of_enemy_treasure()
             ours = false;
         }
     }
+    return enemy_treasure_tiles;
 }
 
 Tile AI::get_closest_enemy_treasure(Unit un)
 {
     std::vector<Tile> enemy_treasures = build_list_of_enemy_treasure();
-    int largest = 999;
+    unsigned largest = 999;
     Tile closest_tile = NULL;
     if(enemy_treasures.empty())
     {
