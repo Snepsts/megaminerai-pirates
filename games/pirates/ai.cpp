@@ -174,21 +174,45 @@ bool AI::run_turn()
     // <<-- /Creer-Merge: runTurn -->>
     return true;
 }
-
-//helper functions
-int AI::get_count_of_action_type(Action p_action)
+//action functions
+bool AI::steal_enemy_treasure(Unit un)
+//Trys to steal enemy treasure by moving to it and digging
+//will return false in any case that is not the unit digging treasure
 {
-    int count = 0;
-    for(std::pair<std::string, Action> kv : current_actions)
+    //check if possible
+    Tile closest_enemy_treasure = get_closest_enemy_treasure(un);
+    if(closest_enemy_treasure == NULL) 
     {
-        if(kv.second->name == p_action->name)
+        return false; //no treasure was found
+    }
+    if(un->tile == closest_enemy_treasure)
+    {
+        if(!un->acted)
         {
-            count++;
+            un->dig(-1); //already on tile, DIG
         }
-        return count;
+        else
+        {
+            return false; //on tile but couldn't steal
+        }
+    }
+    else
+    {
+        if(move_towards_enemy_treasure(un))
+        {
+            if(!un->acted)
+            {
+                un->dig(-1);
+                return true;
+            }
+            else
+            {
+                return false; //on tile but out of energy
+            }
+        }
     }
 }
-
+//helper functions
 std::vector<Tile> AI::build_list_of_enemy_treasure()
 {
     bool ours = false;
@@ -215,14 +239,22 @@ std::vector<Tile> AI::build_list_of_enemy_treasure()
     }
 }
 
-bool AI::move_towards_enemy_treasure(Unit u)
+Tile AI::get_closest_enemy_treasure(Unit un)
 {
     std::vector<Tile> enemy_treasures = build_list_of_enemy_treasure();
     int largest = 999;
     Tile closest_tile = NULL;
+    if(enemy_treasures.empty())
+    {
+        return closest_tile;
+    }
     for(Tile enemy_treasure_tile : enemy_treasures)
     {
-        std::vector<Tile> test_path = this->find_path(u->tile, enemy_treasure_tile, u);
+        if(un->tile == enemy_treasure_tile)
+        {
+            return un->tile; //your dumb
+        }
+        std::vector<Tile> test_path = this->find_path(un->tile, enemy_treasure_tile, un);
         if(test_path.size() != 0 && test_path.size() < largest)
         {
             largest = test_path.size();
@@ -231,14 +263,25 @@ bool AI::move_towards_enemy_treasure(Unit u)
     }
     if(closest_tile == NULL)
     {
-        return false;
+        return NULL;
     }
-    std::vector<Tile> path = this->find_path(u->tile, closest_tile, u);
-    while(u->moves > 0)
+    return closest_tile;
+}
+
+bool AI::move_towards_enemy_treasure(Unit un)
+{
+    Tile closest_tile = get_closest_enemy_treasure(un);
+    if(closest_tile == NULL)
+        return false; // no treasure
+    std::vector<Tile> path = this->find_path(un->tile, closest_tile, un);
+    while(un->moves > 0)
     {
-        u->move(path[0]);
+        if(path.empty())
+            return true; //reached the tile
+        un->move(path[0]);
         path.erase(path.begin());
     }
+    return false;
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.

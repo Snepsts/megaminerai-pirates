@@ -9,10 +9,7 @@ using namespace cpp_client::pirates;
 class steal_gold : public action
 {
     public:
-    steal_gold(AI* aip, Unit u) : action(aip, u)
-    {
-        name = "steal_gold";
-    }
+    steal_gold(AI* aip, Unit u);
     
     bool can_execute();
 
