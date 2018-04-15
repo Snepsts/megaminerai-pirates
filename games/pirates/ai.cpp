@@ -195,6 +195,20 @@ bool AI::steal_enemy_ship(Unit u)
     return false;
 }
 
+bool AI::board_empty_ship(Unit u)
+{
+    Tile closest_empty_ship = get_closest_empty_ship(u);
+    int current_crew = u->crew;
+    if(move_next_to_tile(u, closest_empty_ship))
+    {
+        if(u->split(closest_empty_ship, current_crew/2))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool AI::steal_enemy_treasure(Unit u)
 //Trys to steal enemy treasure by moving to it and digging
 //will return false in any case that is not the unit digging treasure
@@ -282,6 +296,47 @@ bool AI::unit_retreat_and_rest(Unit u)
 }
 
 //helper functions
+Tile AI::get_closest_empty_ship(Unit u)
+{
+    std::vector<std::vector<Tile>> possible_paths;
+    std::vector<Tile> empty_ship_tiles;
+    for(Unit possible_empty_ship : game->units) {
+        if(possible_empty_ship->ship_health > 0 && possible_empty_ship->crew_health <= 0) {
+            empty_ship_tiles.push_back(possible_empty_ship->tile);
+        }
+    }
+    if(empty_ship_tiles.empty()) {
+        return NULL;
+    }
+    return get_closest_tile_from_options(u, empty_ship_tiles);
+}
+
+Tile AI::get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options)
+{
+    unsigned smallest = 999;
+    Tile closest_tile = NULL;
+    std::vector<Tile> smallest_path;
+    std::vector<std::vector<Tile>> possible_paths;
+    for(Tile tile_option : tile_options)
+    {
+        std::vector<Tile> temp = find_path(u->tile, tile_option, u);
+        if(temp.size() > 0)
+        {
+            possible_paths.push_back(temp);
+        }
+    }
+    for(std::vector<Tile> possible_path : possible_paths)
+    {
+        if(possible_path.size() != 0 && possible_path.size() < smallest)
+        {
+            smallest = possible_path.size();
+            smallest_path = possible_path;
+            closest_tile = possible_path.back();
+        }
+    }
+    return closest_tile;
+}
+
 Tile AI::get_closest_port(Unit u)
 {
     std::vector<std::vector<Tile>> possible_paths;
@@ -346,17 +401,19 @@ std::vector<Tile> AI::get_list_of_enemy_treasure()
 {
     bool ours = false;
     std::vector<Tile> enemy_treasure_tiles;
-    std::vector<Tile> our_treasure_tiles;
     for(Tile tile : this->game->tiles)
     {
         if(tile->gold > 0)
         {
-            for(Tile ourTreasure : our_treasure_tiles)
+            if(buried_treasure_vec.size() != 0)
             {
-                if(ourTreasure == tile)
+                for(Tile ourTreasure : buried_treasure_vec)
                 {
-                    ours = true;
-                    break;
+                    if(ourTreasure == tile)
+                    {
+                        ours = true;
+                        break;
+                    }
                 }
             }
             if(!ours)
