@@ -285,10 +285,14 @@ bool AI::unit_retreat_and_rest(Unit u)
 }
 
 bool AI::crew_bury_treasure(Unit u)
+//Checks if the unit has gold and buries it there.  If the tile doesnt have gold in it previously
+//it is added to the buried treasure vector
 {
-    if(u->gold > 0 && std::find(buried_treasure_vec.begin(), buried_treasure_vec.end(), u->tile) == buried_treasure_vec.end())
+    if(u->gold > 0)
     {
-        buried_treasure_vec.push_back(u->tile);
+        if(std::find(buried_treasure_vec.begin(), buried_treasure_vec.end(), u->tile) == buried_treasure_vec.end())
+            buried_treasure_vec.push_back(u->tile);
+            
         return u->bury(u->gold);
     }
     return false;
