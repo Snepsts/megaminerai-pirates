@@ -160,6 +160,23 @@ float AI::get_ship_aggressiveness(Unit u)
 //Fuzzy functions
 //******************************************************************************************
 
+float AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
+// 0 = steal, 1 = destroy
+{
+    auto enemy = get_closest_enemy_ship(u);
+
+    int my_health = u->ship_health;
+    int enemy_ship_health = enemy->unit == nullptr ? 0 : enemy->unit->ship_health;
+    int enemy_crew_health = enemy->unit == nullptr ? 0 : enemy->unit->crew_health;
+    
+    int max = enemy_crew_health > enemy_ship_health ? enemy_crew_health : enemy_ship_health;
+
+    float ship_fuzzy = (float)enemy_ship_health / max;
+    float crew_fuzzy = 1 - ((float)enemy_crew_health / max);
+
+    return (ship_fuzzy + crew_fuzzy) / 2;
+}
+
 float AI::get_ship_danger_level(Unit u)
 {
     std::cout << "get_ship_danger_level\n";
