@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gdb --args ./build/cpp-client Pirates -s game.siggame.io -r 65
