@@ -145,6 +145,7 @@ bool AI::run_ship_turn(Unit u)
             }
         }
     }
+    return false;
 }
 
 bool AI::fuzzy_pickup_units_ship()
@@ -465,7 +466,6 @@ bool AI::fuzzy_deposit_gold_crew(Unit u)
 
     if(has_gold)
     {
-        int max_health = this->game->crew_health;
         int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
         int max_gold = 2000;
         int distance = distance_to_port(u);
@@ -510,8 +510,9 @@ bool AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
 
     float ship_fuzzy = (float)enemy_ship_health / max;
     float crew_fuzzy = 1 - ((float)enemy_crew_health / max);
+    float health_fuzzy = my_health / this->game->ship_health;
 
-    float fuzzy_value = (ship_fuzzy + crew_fuzzy) / 2;
+    float fuzzy_value = (ship_fuzzy + crew_fuzzy + health_fuzzy) / 3;
     return fuzzy_value >= 0.5;
 }
 
