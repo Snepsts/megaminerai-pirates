@@ -114,6 +114,7 @@ bool AI::run_ship_attack(Unit u)
 {
     float decision = 0.0f;
     Tile enemy_ship = get_closest_enemy_ship(u);
+    Tile merchant_ship = get_closest_merchant_ship(u);
 
     decision += (1.0f - get_enemy_ship_health_value(u, enemy_ship));
     decision += get_enemy_ship_crew_value(u, enemy_ship); 
