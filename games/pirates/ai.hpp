@@ -38,11 +38,6 @@ public:
     /// This is a pointer to your AI's player. This AI class is not a player, but it should command this Player.
     /// </summary>
     Player player;
-
-    std::vector<Unit> enemyCrew();
-    std::vector<Unit> enemyShips();
-
-
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.
     //<<-- /Creer-Merge: class variables -->>
@@ -67,7 +62,7 @@ public:
     virtual void ended(bool won, const std::string& reason) override;
 
     /// <summary>
-    /// This is automatically called the game (or anything in it) updates
+    /// This is automatically called the gfind_pathame (or anything in it) updates
     /// </summary>
     virtual void game_updated() override;
 
@@ -101,15 +96,15 @@ public:
     bool is_ship(Unit u);
     std::vector<Unit> get_enemy_crew();
     std::vector<Unit> get_enemy_ships();
-    std::vector<Tile> build_list_of_enemy_treasure();
+    std::vector<Tile> get_list_of_enemy_treasure();
     void spawn_units();
     bool move_to_tile(Unit u, Tile t);
     int get_close_enemy_ships(Unit u);
     Tile get_closest_enemy_treasure(Unit un);
+    Tile get_closest_enemy_ship(Unit u);
 
 
     // <<-- /Creer-Merge: methods -->>
-
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
