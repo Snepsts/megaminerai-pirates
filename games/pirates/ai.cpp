@@ -2,7 +2,7 @@
 // This is where you build your AI
 
 #include "ai.hpp"
-#include "action.hpp"
+
 #include<map>
 #include<string>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
@@ -16,9 +16,6 @@ namespace cpp_client
 namespace pirates
 {
 
-extern std::vector<Action> ACTION_VECTOR;
-std::vector<Tile> our_treasure_tiles;
-std::map<std::string, Action> current_actions;
 /// <summary>
 /// This returns your AI's name to the game server.
 /// Replace the string name.
@@ -91,6 +88,57 @@ void AI::spawner()
         else
             this->player->port->spawn("ship");
     }
+}
+
+std::vector<Unit> AI::enemyCrew()
+{
+    std::vector<Unit> crew;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health == 0)
+            crew.push_back(u);
+    }
+    return crew;
+}
+
+std::vector<Unit> AI::enemyShips()
+{
+    std::vector<Unit> ships;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health != 0)
+            ships.push_back(u);
+    }
+    return ships;
+}
+
+void AI::get_action()
+{
+    for(auto u : this->player->units)
+    {
+
+    }
+}
+
+bool AI::is_ship(Unit u)
+{
+    return u->ship_health > 0;
+}
+
+bool AI::deposit_treasure_in_home(Unit u)
+{
+    if(!is_ship(u))
+    {
+        auto path = this->find_path(u->tile, this->player->port->tile, u);
+        if(path.size() == 0)
+        {
+            u->deposit();
+        } else {
+            u->move(path[0]);
+        }
+        return true;
+    }
+    return false;
 }
 
 /// <summary>
