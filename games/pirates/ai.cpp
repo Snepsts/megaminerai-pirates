@@ -649,7 +649,7 @@ void AI::spawn_units()
             this->player->port->spawn("ship");
     }
 
-    if (player->port->unit->ship_health > 0) {
+    if (player->port->tile->unit->ship_health > 0) {
         this->player->port->spawn("crew");
     }
 }
