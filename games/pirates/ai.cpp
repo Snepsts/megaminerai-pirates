@@ -370,7 +370,7 @@ bool AI::destroy_merchant_ship(Unit u)
 bool AI::unit_retreat_and_rest(Unit u)
 //Moves unit towards the home port and rests once it is within 3 spaces of it
 {
-    move_to_tile(u, this->player->port->tile);
+    move_next_to_tile(u, this->player->port->tile);
     auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
     if(distance_to_port == 0)
     {
