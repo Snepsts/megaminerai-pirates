@@ -90,7 +90,7 @@ void AI::spawner()
     }
 }
 
-std::vector<Unit> AI::enemyCrew()
+std::vector<Unit> AI::get_enemy_crew()
 {
     std::vector<Unit> crew;
     for(auto u : this->player->opponent->units)
@@ -101,7 +101,7 @@ std::vector<Unit> AI::enemyCrew()
     return crew;
 }
 
-std::vector<Unit> AI::enemyShips()
+std::vector<Unit> AI::get_enemy_ships()
 {
     std::vector<Unit> ships;
     for(auto u : this->player->opponent->units)
@@ -140,7 +140,31 @@ bool AI::deposit_treasure_in_home(Unit u)
 
 bool AI::attack_enemy_ship(Unit u)
 {
-    //auto enemyShips = 
+    auto enemy_ships = get_enemy_ships();
+    if(enemy_ships.size() > 0)
+    {
+        Unit closest_ship = enemy_ships[0];
+        size_t distance = this->find_path(u->tile, enemy_ships[0]->tile, u).size();
+        for(auto es : enemy_ships)
+        {
+            auto current_distance = this->find_path(u->tile, es->tile, u).size();
+            if(current_distance < distance)
+            {
+                closest_ship = es;
+                distance = current_distance;
+            }
+        }
+
+        auto path = this->find_path(u->tile, closest_ship->tile, u);
+        if(path.size() <= 3)
+        {
+            u->attack(closest_ship->tile, "ship");
+            return closest_ship->ship_health == 0;
+        }
+        else{
+            
+        }
+    }
 }
 
 /// <summary>
@@ -261,6 +285,7 @@ bool AI::steal_enemy_treasure(Unit un)
             }
         }
     }
+    return false; //error
 }
 //helper functions
 std::vector<Tile> AI::build_list_of_enemy_treasure()
@@ -287,12 +312,13 @@ std::vector<Tile> AI::build_list_of_enemy_treasure()
             ours = false;
         }
     }
+    return enemy_treasure_tiles;
 }
 
 Tile AI::get_closest_enemy_treasure(Unit un)
 {
     std::vector<Tile> enemy_treasures = build_list_of_enemy_treasure();
-    int largest = 999;
+    unsigned largest = 999;
     Tile closest_tile = NULL;
     if(enemy_treasures.empty())
     {
@@ -332,6 +358,16 @@ bool AI::move_towards_enemy_treasure(Unit un)
         path.erase(path.begin());
     }
     return false;
+}
+
+bool AI::move_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 0)
+            u->move(path[0]);
+    }
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
