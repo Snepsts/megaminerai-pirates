@@ -672,6 +672,10 @@ void AI::spawn_units()
         else
             this->player->port->spawn("ship");
     }
+
+    if (player->port->tile->unit->ship_health > 0) {
+        this->player->port->spawn("crew");
+    }
 }
 
 std::vector<Unit> AI::get_enemy_crew()
