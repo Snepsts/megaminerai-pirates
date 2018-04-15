@@ -383,6 +383,20 @@ bool AI::move_to_tile(Unit u, Tile t)
         return false;
 }
 
+int AI::get_close_enemy_ships(Unit u)
+{
+    int count = 0;
+    auto enemy_ships = get_enemy_ships();
+    for(auto es : enemy_ships)
+    {
+        auto distance = this->find_path(u->tile, es->tile, u).size();
+        if(distance < 4)
+            ++count;
+    }
+
+    return count;
+}
+
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
 /// <param name="goal">the goal Tile</param>
