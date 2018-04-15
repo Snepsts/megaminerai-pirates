@@ -89,7 +89,8 @@ public:
     Tile get_closest_empty_ship(Unit u);
     Tile get_closest_port(Unit u);
     Tile get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options);
-    
+    Tile get_nearest_port(Unit u);
+
     //
     //Action Definitions
     //
@@ -127,6 +128,9 @@ public:
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
+    float get_crew_dig_fuzzy(Unit u, Tile t);
+
+    bool fuzzy_crew_dig();
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
