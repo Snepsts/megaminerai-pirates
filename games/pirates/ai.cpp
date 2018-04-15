@@ -265,6 +265,16 @@ bool AI::unit_retreat_and_rest(Unit u)
     return false;
 }
 
+bool AI::crew_bury_treasure(Unit u)
+{
+    if(u->gold > 0)
+    {
+        buried_treasure_vec.push_back(u->tile);
+        return u->bury(u->gold);
+    }
+    return false;
+}
+
 //helper functions
 Tile AI::get_closest_enemy_ship(Unit u)
 {
