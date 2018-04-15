@@ -94,6 +94,11 @@ public:
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
+    //fuzzy stuff
+    float get_ship_aggressiveness(Unit u);
+    float get_ship_danger_level(Unit u);
+    float get_ship_health_value(Unit u);
+
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
 /// <param name="goal">the goal Tile</param>
