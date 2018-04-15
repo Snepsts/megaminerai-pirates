@@ -77,6 +77,8 @@ public:
 
     // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional methods here.
+    bool move_towards_enemy_treasure(Unit u);
+    std::vector<Tile> build_list_of_enemy_treasure();
     // <<-- /Creer-Merge: methods -->>
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
