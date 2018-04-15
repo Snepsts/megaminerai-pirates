@@ -63,7 +63,7 @@ void AI::ended(bool won, const std::string& reason)
     //<<-- /Creer-Merge: ended -->>
 }
 
-void AI::spawner()
+void AI::spawn_units()
 {
     std::vector<Unit> ships;
     std::vector<Unit> crew;
@@ -140,13 +140,45 @@ bool AI::deposit_treasure_in_home(Unit u)
     }
 }
 
+bool AI::destroy_enemy_ship(Unit u)
+{
+    auto enemy_ships = get_enemy_ships();
+    if(enemy_ships.size() > 0)
+    {
+        Unit closest_ship = enemy_ships[0];
+        size_t distance = this->find_path(u->tile, enemy_ships[0]->tile, u).size();
+        for(auto es : enemy_ships)
+        {
+            auto current_distance = this->find_path(u->tile, es->tile, u).size();
+            if(current_distance < distance)
+            {
+                closest_ship = es;
+                distance = current_distance;
+            }
+        }
+
+        auto path = this->find_path(u->tile, closest_ship->tile, u);
+        if(path.size() <= 3)
+        {
+            u->attack(closest_ship->tile, "ship");
+            return closest_ship->ship_health == 0;
+        }
+        else{
+            move_to_tile(u, closest_ship->tile);
+            return false;
+        }
+        return false;
+    }
+    return false;
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
 /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
 bool AI::run_turn()
 {
-    spawner();
+    spawn_units();
 
     auto my_units = player->units;
 
@@ -226,21 +258,51 @@ float AI::get_ship_health_value(Unit u)
 }
 
 //action functions
-bool AI::steal_enemy_treasure(Unit un)
+bool AI::steal_enemy_ship(Unit u)
+{
+    Tile closest_enemy_ship = get_closest_enemy_ship(u);
+    if(closest_enemy_ship == NULL)
+    {
+        return false; //no enemy ship
+    }
+    std::vector<Tile> path_to_enemy_ship = find_path(u->tile, closest_enemy_ship, u);
+    if(path_to_enemy_ship.size() == 0)
+    {
+        return false; //no valid path
+    }
+    if(path_to_enemy_ship.size() == 1)
+    {
+        if(u->attack(closest_enemy_ship, "crew"))
+        {
+            return true; //attacked enemy ship
+        }
+    }
+    else
+    {
+        move_next_to_tile(u, path_to_enemy_ship.back());
+        if(u->attack(closest_enemy_ship, "crew"))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AI::steal_enemy_treasure(Unit u)
 //Trys to steal enemy treasure by moving to it and digging
 //will return false in any case that is not the unit digging treasure
 {
     //check if possible
-    Tile closest_enemy_treasure = get_closest_enemy_treasure(un);
+    Tile closest_enemy_treasure = get_closest_enemy_treasure(u);
     if(closest_enemy_treasure == NULL) 
     {
         return false; //no treasure was found
     }
-    if(un->tile == closest_enemy_treasure)
+    if(u->tile == closest_enemy_treasure)
     {
-        if(!un->acted)
+        if(!u->acted)
         {
-            un->dig(-1); //already on tile, DIG
+            u->dig(-1); //already on tile, DIG
         }
         else
         {
@@ -249,11 +311,11 @@ bool AI::steal_enemy_treasure(Unit un)
     }
     else
     {
-        if(move_towards_enemy_treasure(un))
+        if(move_towards_enemy_treasure(u))
         {
-            if(!un->acted)
+            if(!u->acted)
             {
-                un->dig(-1);
+                u->dig(-1);
                 return true;
             }
             else
@@ -264,8 +326,32 @@ bool AI::steal_enemy_treasure(Unit un)
     }
     return false; //error
 }
+
 //helper functions
-std::vector<Tile> AI::build_list_of_enemy_treasure()
+Tile AI::get_closest_enemy_ship(Unit u)
+{
+    std::vector<std::vector<Tile>> possible_paths;
+    std::vector<Unit> enemy_ships = get_enemy_ships();
+    for(Unit enemy_ship : enemy_ships) {
+        std::vector<Tile> path = find_path(u->tile, enemy_ship->tile, u);
+        possible_paths.push_back(path);
+    }
+    unsigned smallest = 999;
+    Tile closest_tile = NULL;
+    std::vector<Tile> smallest_path;
+    for(std::vector<Tile> possible_path : possible_paths)
+    {
+        if(possible_path.size() != 0 && possible_path.size() < smallest)
+        {
+            smallest = possible_path.size();
+            smallest_path = possible_path;
+            closest_tile = possible_path.back();
+        }
+    }
+    return closest_tile;
+}
+
+std::vector<Tile> AI::get_list_of_enemy_treasure()
 {
     bool ours = false;
     std::vector<Tile> enemy_treasure_tiles;
@@ -292,9 +378,9 @@ std::vector<Tile> AI::build_list_of_enemy_treasure()
     return enemy_treasure_tiles;
 }
 
-Tile AI::get_closest_enemy_treasure(Unit un)
+Tile AI::get_closest_enemy_treasure(Unit u)
 {
-    std::vector<Tile> enemy_treasures = build_list_of_enemy_treasure();
+    std::vector<Tile> enemy_treasures = get_list_of_enemy_treasure();
     unsigned largest = 999;
     Tile closest_tile = NULL;
     if(enemy_treasures.empty())
@@ -303,11 +389,11 @@ Tile AI::get_closest_enemy_treasure(Unit un)
     }
     for(Tile enemy_treasure_tile : enemy_treasures)
     {
-        if(un->tile == enemy_treasure_tile)
+        if(u->tile == enemy_treasure_tile)
         {
-            return un->tile; //your dumb
+            return u->tile; //your dumb
         }
-        std::vector<Tile> test_path = this->find_path(un->tile, enemy_treasure_tile, un);
+        std::vector<Tile> test_path = this->find_path(u->tile, enemy_treasure_tile, u);
         if(test_path.size() != 0 && test_path.size() < largest)
         {
             largest = test_path.size();
@@ -321,20 +407,62 @@ Tile AI::get_closest_enemy_treasure(Unit un)
     return closest_tile;
 }
 
-bool AI::move_towards_enemy_treasure(Unit un)
+bool AI::move_towards_enemy_treasure(Unit u)
 {
-    Tile closest_tile = get_closest_enemy_treasure(un);
+    Tile closest_tile = get_closest_enemy_treasure(u);
     if(closest_tile == NULL)
         return false; // no treasure
-    std::vector<Tile> path = this->find_path(un->tile, closest_tile, un);
-    while(un->moves > 0)
+    std::vector<Tile> path = this->find_path(u->tile, closest_tile, u);
+    while(u->moves > 0)
     {
         if(path.empty())
             return true; //reached the tile
-        un->move(path[0]);
+        u->move(path[0]);
         path.erase(path.begin());
     }
     return false;
+}
+
+bool AI::move_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 0)
+            u->move(path[0]);
+    }
+    if (u->tile == t)
+        return true;
+    else
+        return false;
+}
+
+bool AI::move_next_to_tile(Unit u, Tile t)
+{
+    while(u->moves > 0)
+    {
+        auto path = this->find_path(u->tile, t, u);
+        if(path.size() > 1)
+            u->move(path[0]);
+    }
+    if (find_path(u->tile, t, u).size() == 1)
+        return true;
+    else
+        return false;
+}
+
+int AI::get_close_enemy_ships(Unit u)
+{
+    int count = 0;
+    auto enemy_ships = get_enemy_ships();
+    for(auto es : enemy_ships)
+    {
+        auto distance = this->find_path(u->tile, es->tile, u).size();
+        if(distance < 4)
+            ++count;
+    }
+
+    return count;
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
