@@ -80,8 +80,6 @@ public:
     // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional methods here.
     
-    void get_action();
-
     //
     //Action Definitions
     //
@@ -90,6 +88,8 @@ public:
     bool steal_enemy_treasure(Unit un);
 
     bool steal_enemy_ship(Unit un);
+
+    bool unit_retreat_and_rest(Unit un);
 
     bool deposit_treasure_in_home(Unit u);
 

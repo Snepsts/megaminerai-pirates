@@ -63,115 +63,6 @@ void AI::ended(bool won, const std::string& reason)
     //<<-- /Creer-Merge: ended -->>
 }
 
-void AI::spawn_units()
-{
-    std::vector<Unit> ships;
-    std::vector<Unit> crew;
-    for(auto u : this->player->units)
-    {
-        if(u->ship_health > 0)
-            ships.push_back(u);
-        else
-            crew.push_back(u);
-    }
-    if(crew.size() == 0)
-    {
-        this->player->port->spawn("crew");
-    }
-    else if(ships.size() == 0)
-    {
-        this->player->port->spawn("ship");
-    }
-    else
-    {
-        float ratio = crew.size() / ships.size();
-        if(ratio < 3)
-            this->player->port->spawn("crew");
-        else
-            this->player->port->spawn("ship");
-    }
-}
-
-std::vector<Unit> AI::get_enemy_crew()
-{
-    std::vector<Unit> crew;
-    for(auto u : this->player->opponent->units)
-    {
-        if(u->ship_health == 0)
-            crew.push_back(u);
-    }
-    return crew;
-}
-
-std::vector<Unit> AI::get_enemy_ships()
-{
-    std::vector<Unit> ships;
-    for(auto u : this->player->opponent->units)
-    {
-        if(u->ship_health != 0)
-            ships.push_back(u);
-    }
-    return ships;
-}
-
-void AI::get_action()
-{
-    for(auto u : this->player->units)
-    {
-
-    }
-}
-
-bool AI::is_ship(Unit u)
-{
-    return u->ship_health > 0;
-}
-
-bool AI::deposit_treasure_in_home(Unit u)
-{
-    auto path = this->find_path(u->tile, this->player->port->tile, u);
-    if(path.size() == 0)
-    {
-        u->deposit();
-        return u->gold == 0;
-    } else {
-        u->move(path[0]);
-        return false;
-    }
-}
-
-bool AI::destroy_enemy_ship(Unit u)
-{
-    auto enemy_ships = get_enemy_ships();
-    if(enemy_ships.size() > 0)
-    {
-        Unit closest_ship = enemy_ships[0];
-        size_t distance = this->find_path(u->tile, enemy_ships[0]->tile, u).size();
-        for(auto es : enemy_ships)
-        {
-            auto current_distance = this->find_path(u->tile, es->tile, u).size();
-            if(current_distance < distance)
-            {
-                closest_ship = es;
-                distance = current_distance;
-            }
-        }
-
-        auto path = this->find_path(u->tile, closest_ship->tile, u);
-        if(path.size() <= 3)
-        {
-            u->attack(closest_ship->tile, "ship");
-            return closest_ship->ship_health == 0;
-        }
-        else{
-            move_to_tile(u, closest_ship->tile);
-            return false;
-        }
-        return false;
-    }
-    return false;
-}
-
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
@@ -241,6 +132,54 @@ bool AI::steal_enemy_treasure(Unit un)
     }
     return false; //error
 }
+
+bool AI::destroy_enemy_ship(Unit u)
+//Moves unit towards nearest enemy ship and attacks it if it is within 3 spaces
+//Returns true only if the enemy ship is destroyed
+{
+    auto enemy_ships = get_enemy_ships();
+    if(enemy_ships.size() > 0)
+    {
+        Unit closest_ship = enemy_ships[0];
+        size_t distance = this->find_path(u->tile, enemy_ships[0]->tile, u).size();
+        for(auto es : enemy_ships)
+        {
+            auto current_distance = this->find_path(u->tile, es->tile, u).size();
+            if(current_distance < distance)
+            {
+                closest_ship = es;
+                distance = current_distance;
+            }
+        }
+
+        auto path = this->find_path(u->tile, closest_ship->tile, u);
+        if(path.size() <= 3)
+        {
+            u->attack(closest_ship->tile, "ship");
+            return closest_ship->ship_health == 0;
+        }
+        else{
+            move_to_tile(u, closest_ship->tile);
+            return false;
+        }
+        return false;
+    }
+    return false;
+}
+
+bool AI::unit_retreat_and_rest(Unit u)
+//Moves unit towards the home port and rests once it is within 3 spaces of it
+{
+    auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
+    move_to_tile(u, this->player->port->tile);
+    if(distance_to_port <= 3)
+    {
+        u->rest();
+        return true;
+    }
+    return false;
+}
+
 //helper functions
 std::vector<Tile> AI::build_list_of_enemy_treasure()
 {
@@ -336,6 +275,75 @@ int AI::get_close_enemy_ships(Unit u)
     }
 
     return count;
+}
+
+void AI::spawn_units()
+{
+    std::vector<Unit> ships;
+    std::vector<Unit> crew;
+    for(auto u : this->player->units)
+    {
+        if(u->ship_health > 0)
+            ships.push_back(u);
+        else
+            crew.push_back(u);
+    }
+    if(crew.size() == 0)
+    {
+        this->player->port->spawn("crew");
+    }
+    else if(ships.size() == 0)
+    {
+        this->player->port->spawn("ship");
+    }
+    else
+    {
+        float ratio = crew.size() / ships.size();
+        if(ratio < 3)
+            this->player->port->spawn("crew");
+        else
+            this->player->port->spawn("ship");
+    }
+}
+
+std::vector<Unit> AI::get_enemy_crew()
+{
+    std::vector<Unit> crew;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health == 0)
+            crew.push_back(u);
+    }
+    return crew;
+}
+
+std::vector<Unit> AI::get_enemy_ships()
+{
+    std::vector<Unit> ships;
+    for(auto u : this->player->opponent->units)
+    {
+        if(u->ship_health != 0)
+            ships.push_back(u);
+    }
+    return ships;
+}
+
+bool AI::is_ship(Unit u)
+{
+    return u->ship_health > 0;
+}
+
+bool AI::deposit_treasure_in_home(Unit u)
+{
+    auto path = this->find_path(u->tile, this->player->port->tile, u);
+    if(path.size() == 0)
+    {
+        u->deposit();
+        return u->gold == 0;
+    } else {
+        u->move(path[0]);
+        return false;
+    }
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
