@@ -185,7 +185,30 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 {
     float fuzzy = 0.0;
 
+    int highest_gold = 0;
+    for(auto un : this->player->units)
+    {
+        if (un->gold > highest_gold)
+            highest_gold = un->gold;
+    }
 
+    float fuzzy_gold = u->gold / highest_gold;
+
+    return 0;
+}
+
+bool AI::fuzzy_crew_dig(Unit u, Tile t)
+{
+    float fuzzy_value = get_crew_dig_fuzzy(u, t);
+
+    if( fuzzy_value <= 0.5)
+    {
+        unit_retreat_and_rest(u);
+    }
+    else
+    {
+        crew_dig_treasure(u, t);
+    }
 }
 
 //**************************************************************************************************
@@ -347,9 +370,9 @@ bool AI::destroy_merchant_ship(Unit u)
 bool AI::unit_retreat_and_rest(Unit u)
 //Moves unit towards the home port and rests once it is within 3 spaces of it
 {
-    auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
     move_to_tile(u, this->player->port->tile);
-    if(distance_to_port <= 3)
+    auto distance_to_port = this->find_path(u->tile, this->player->port->tile, u).size();
+    if(distance_to_port == 0)
     {
         u->rest();
         return true;
