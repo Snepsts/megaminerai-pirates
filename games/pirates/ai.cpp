@@ -176,7 +176,7 @@ bool AI::run_unit_turn(Unit u)
                 while (path.size() > 0 && u->moves > 0) {
                     u->move(path[0]);
                     path.erase(path.begin());
-                    if (path.size() > this->game->ship_range && u->moves > 0) {
+                    if (path.size() <= this->game->ship_range && u->moves > 0) {
                         u->attack(target->tile, "ship");
                         break;
                     }
