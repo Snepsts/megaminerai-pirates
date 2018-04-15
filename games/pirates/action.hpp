@@ -26,11 +26,11 @@ public:
         _un = u;
     }
 
-    virtual bool can_execute();
+    virtual bool can_execute() { return false; }
 
-    virtual bool execute();
+    virtual bool execute() { return false; }
 
-    virtual void move_towards();
+    virtual void move_towards() { /*nothing*/ }
 
     std::string name;
     std::string job;

@@ -17,7 +17,7 @@ namespace pirates
 {
 
 extern std::vector<Action> ACTION_VECTOR;
-
+std::vector<Tile> our_treasure_tiles;
 std::map<std::string, Action> current_actions;
 /// <summary>
 /// This returns your AI's name to the game server.
@@ -205,7 +205,8 @@ bool AI::run_turn()
     return true;
 }
 
-int get_count_of_action_type(Action p_action)
+//helper functions
+int AI::get_count_of_action_type(Action p_action)
 {
     int count = 0;
     for(std::pair<std::string, Action> kv : current_actions)
@@ -215,6 +216,58 @@ int get_count_of_action_type(Action p_action)
             count++;
         }
         return count;
+    }
+}
+
+std::vector<Tile> AI::build_list_of_enemy_treasure()
+{
+    bool ours = false;
+    std::vector<Tile> enemy_treasure_tiles;
+    std::vector<Tile> our_treasure_tiles;
+    for(Tile tile : this->game->tiles)
+    {
+        if(tile->gold > 0)
+        {
+            for(Tile ourTreasure : our_treasure_tiles)
+            {
+                if(ourTreasure == tile)
+                {
+                    ours = true;
+                    break;
+                }
+            }
+            if(!ours)
+            {
+                enemy_treasure_tiles.push_back(tile);
+            }
+            ours = false;
+        }
+    }
+}
+
+bool AI::move_towards_enemy_treasure(Unit u)
+{
+    std::vector<Tile> enemy_treasures = build_list_of_enemy_treasure();
+    int largest = 999;
+    Tile closest_tile = NULL;
+    for(Tile enemy_treasure_tile : enemy_treasures)
+    {
+        std::vector<Tile> test_path = this->find_path(u->tile, enemy_treasure_tile, u);
+        if(test_path.size() != 0 && test_path.size() < largest)
+        {
+            largest = test_path.size();
+            closest_tile = enemy_treasure_tile;
+        }
+    }
+    if(closest_tile == NULL)
+    {
+        return false;
+    }
+    std::vector<Tile> path = this->find_path(u->tile, closest_tile, u);
+    while(u->moves > 0)
+    {
+        u->move(path[0]);
+        path.erase(path.begin());
     }
 }
 

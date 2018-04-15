@@ -2,6 +2,7 @@
 #define __DEFEND_TREASURE__
 
 #include "ai.hpp"
+#include "action.hpp"
 
 using namespace cpp_client::pirates;
 
