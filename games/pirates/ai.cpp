@@ -171,28 +171,30 @@ bool AI::heal_ship(Unit u)
 bool AI::steal_enemy_ship(Unit u)
 {
     Tile closest_enemy_ship = get_closest_enemy_ship(u);
-    if(closest_enemy_ship == NULL)
-    {
+    if(closest_enemy_ship == NULL) {
         return false; //no enemy ship
     }
     std::vector<Tile> path_to_enemy_ship = find_path(u->tile, closest_enemy_ship, u);
-    if(path_to_enemy_ship.size() == 0)
-    {
+    if(path_to_enemy_ship.size() == 0) {
         return false; //no valid path
     }
-    if(path_to_enemy_ship.size() == 1)
-    {
-        if(u->attack(closest_enemy_ship, "crew"))
-        {
+    if(path_to_enemy_ship.size() == 1) {
+        if(u->attack(closest_enemy_ship, "crew")) {
             return true; //attacked enemy ship
         }
     }
-    else
-    {
-        move_next_to_tile(u, path_to_enemy_ship.back());
-        if(u->attack(closest_enemy_ship, "crew"))
+    else {
+        if(move_next_to_tile(u, path_to_enemy_ship.back())) {
+            if(u->attack(closest_enemy_ship, "crew")) {
+                return true;
+            }
+        }
+        else
         {
-            return true;
+            if(u->attack(closest_enemy_ship, "ship"))
+            {
+                return true;
+            }
         }
     }
     return false;
