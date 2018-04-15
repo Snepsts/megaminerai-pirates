@@ -95,6 +95,7 @@ public:
     bool steal_enemy_treasure(Unit u);
     bool steal_enemy_ship(Unit u);
     bool destroy_enemy_ship(Unit u);
+    bool unit_retreat_and_rest(Unit u);
 
     //
     // Helper method delcarations
@@ -110,6 +111,10 @@ public:
     bool run_ship_turn(Unit u);
     bool run_crew_turn(Unit u);
 
+    //fuzzy stuff
+    float get_ship_aggressiveness(Unit u);
+    float get_ship_danger_level(Unit u);
+    float get_ship_health_value(Unit u);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>
