@@ -126,6 +126,8 @@ public:
     bool move_to_tile(Unit u, Tile t);
     bool move_next_to_tile(Unit u, Tile t);
     bool is_ship(Unit u);
+    int distance_to_port(Unit u);
+    int distance_to_unit(Unit u1, Unit u2);
 
     //
     // Properties
@@ -138,6 +140,10 @@ public:
     bool run_crew_turn(Unit u);
     bool run_ship_attack(Unit u);
 
+    //fuzzy controllers
+    bool attack_instead_of_steal(Unit u);
+    bool go_deposit_ship(Unit u);
+
     //fuzzy stuff
     bool fuzzy_deposit_gold_crew(Unit u)
     bool fuzzy_go_heal_crew(Unit u);
@@ -145,10 +151,20 @@ public:
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
     float get_crew_dig_fuzzy(Unit u, Tile t);
+    float closeness_to_gold(Unit u);
+    float ship_richness(Unit u);
+    float closeness_to_port(Unit u);
+
+    //fuzzy helpers
+    int get_distance_to_enemy_gold(Unit u);
 
     bool fuzzy_crew_dig(Unit u, Tile t);
     float get_enemy_ship_crew_value(Unit u, Tile enemy_ship);
     float get_enemy_ship_health_value(Unit u, Tile enemy_ship);
+
+    bool fuzzy_steal_or_destroy_enemy_ship(Unit u);
+    bool fuzzy_go_heal_ship(Unit u);
+    bool fuzzy_go_heal_crew(Unit u);
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
 /// <param name="start">the starting Tile</param>

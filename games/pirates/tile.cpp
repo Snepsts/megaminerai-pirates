@@ -78,7 +78,7 @@ bool Tile_::is_pathable(const Unit& unit)
     // Ships can only be on water
     if (unit->ship_health > 0) 
     {
-        return type == "water" && (!port || !(port->owner == unit->owner));
+        return type == "water" && (!port || (port->owner == unit->owner));
     }
 
     // Crew that aren't on ships can only be on land or ports owned by their owner
