@@ -43,7 +43,10 @@ public:
     void get_action();
     std::vector<Unit> enemyCrew();
     std::vector<Unit> enemyShips();
-    std::map<Unit, Action> unit_action_map;
+
+    bool is_ship(Unit u);
+
+    bool deposit_treasure_in_home(Unit u);
 
     //<<-- Creer-Merge: class variables -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
     // You can add additional class variables here.

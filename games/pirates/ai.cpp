@@ -123,6 +123,27 @@ void AI::get_action()
     }
 }
 
+bool AI::is_ship(Unit u)
+{
+    return u->ship_health > 0;
+}
+
+bool AI::deposit_treasure_in_home(Unit u)
+{
+    if(!is_ship(u))
+    {
+        auto path = this->find_path(u->tile, this->player->port->tile, u);
+        if(path.size() == 0)
+        {
+            u->deposit();
+        } else {
+            u->move(path[0]);
+        }
+        return true;
+    }
+    return false
+}
+
 /// <summary>
 /// This is called every time it is this AI.player's turn.
 /// </summary>
