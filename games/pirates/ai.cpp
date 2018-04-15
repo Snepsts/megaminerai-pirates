@@ -102,6 +102,22 @@ bool AI::run_unit_turn(Unit u)
             u->rest();
         }
     }
+    else if(u->gold >= game->crew_cost + game->ship_cost) // Deposit gold if we have enough for a ship and crew
+    {
+        std::vector<Tile> path = this->find_path(u->tile, player->port->tile, u);
+        if (path.size() > 0)
+        {
+            // Move along the path if there is one
+            while (path.size() > 0 && u->moves > 0) {
+                u->move(path[0]);
+                path.erase(path.begin());
+            }
+            if(path.empty())
+            {
+                u->deposit();
+            }
+        }
+    }
     else
     {
         // Try to attack a merchant
