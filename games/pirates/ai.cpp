@@ -146,6 +146,10 @@ float AI::get_ship_aggressiveness(Unit u)
     return ret / 2;
 }
 
+//******************************************************************************************
+//Fuzzy functions
+//******************************************************************************************
+
 float AI::get_ship_danger_level(Unit u)
 {
     float ret = 0.0f;
@@ -175,6 +179,13 @@ float AI::get_ship_danger_level(Unit u)
 float AI::get_ship_health_value(Unit u)
 {
     return (float)(u->ship_health / game->ship_health);
+}
+
+float AI::get_crew_dig_fuzzy(Unit u, Tile t)
+{
+    float fuzzy = 0.0;
+
+
 }
 
 //**************************************************************************************************
@@ -372,6 +383,7 @@ bool AI::crew_dig_treasure(Unit u, Tile t)
 
 //**************************************************************************************************
 //helper functions
+//**************************************************************************************************
 Tile AI::get_closest_empty_ship(Unit u)
 {
     std::vector<std::vector<Tile>> possible_paths;
@@ -653,6 +665,35 @@ bool AI::deposit_treasure_in_home(Unit u)
         u->move(path[0]);
         return false;
     }
+}
+
+Tile AI::get_nearest_port(Unit u)
+{
+    std::vector<Tile> docks;
+    for(auto t : this->game->tiles)
+    {
+        if(t->port != nullptr)
+            docks.push_back(t);
+    }
+    AI* temp = this;
+    
+    Tile nearest;
+    if(docks.size() > 0)
+    {
+        nearest = docks[0];
+        size_t distance = this->find_path(u->tile, nearest, u).size();
+        for(auto d : docks)
+        {
+            size_t current_distance = this->find_path(u->tile, d, u).size();
+            if(current_distance < distance)
+            {
+                distance = current_distance;
+                nearest = d;
+            }
+        }
+    }
+
+    return nearest;
 }
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
