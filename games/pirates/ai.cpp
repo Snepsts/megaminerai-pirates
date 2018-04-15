@@ -184,7 +184,7 @@ bool AI::check_on_home_island(Unit u)
     {
         return false;
     } else {
-        if(path_to_port.back == player->port->tile)
+        if(path_to_port.back() == player->port->tile)
         {
             return true;
         }
@@ -197,10 +197,6 @@ bool AI::fuzzy_deposit_gold_crew(Unit u)
     return true;
 }
 
-bool AI::fuzzy_go_heal_crew(Unit u)
-{
-    return true;
-}
 
 bool AI::check_for_reachable_empty_ships(Unit u)
 {
@@ -333,12 +329,6 @@ bool AI::board_ship(Unit u)
 void AI::request_ship(Unit u)
 {
     return;
-}
-
-bool AI::run_ship_attack(Unit u)
-{
-    std::cout << "run_crew_turn\n";
-    return true;
 }
 
 bool AI::run_ship_attack(Unit u) //this is gross but enemy and merchants are treated differently in our logic sooo
@@ -486,7 +476,7 @@ float AI::get_ship_danger_level(Unit u)
     float ret = 0.0f;
 
     int enemy_ships = get_close_enemy_ships(u);
-    switch (enemy_ships) {)
+    switch (enemy_ships) {
         case 0:
             ret += 0.0f;
             break;
@@ -506,10 +496,10 @@ float AI::get_ship_danger_level(Unit u)
 
     return ret;
 }
-)
+
 float AI::get_ship_health_value(Unit u)
 {
-    std::cout << "get_ship_health_value\n";
+    std::cout << "get_ship_health_value";
     return (float)(u->ship_health / game->ship_health);
 }
 
@@ -532,7 +522,7 @@ float AI::get_crew_dig_fuzzy(Unit u, Tile t)
 
 bool AI::fuzzy_crew_dig(Unit u, Tile t)
 {
-    std::cout << "fuzzy_crew_dig\n";
+    std::cout << "fuzzy_crew_dig";
     float fuzzy_value = get_crew_dig_fuzzy(u, t);
 
     if( fuzzy_value <= 0.5)
@@ -546,7 +536,7 @@ bool AI::fuzzy_crew_dig(Unit u, Tile t)
         return true;
     }
     return false;
-})
+}
 
 //**************************************************************************************************
 //action functions
@@ -586,12 +576,10 @@ bool AI::steal_enemy_ship(Unit u)
     }
     else {
         if(move_next_to_tile(u, path_to_enemy_ship.back())) {
-            if(u->attack(closest_ene)my_ship, "crew")) {
+            if(u->attack(closest_enemy_ship, "crew")) {
                 return true;
             }
-        }
-        else
-        {
+        } else {
             if(u->attack(closest_enemy_ship, "ship"))
             {
                 return true;

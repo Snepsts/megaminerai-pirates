@@ -118,7 +118,6 @@ public:
     bool crew_dig_treasure(Unit u, Tile t);
     bool pickup_units_with_gold(Unit u);
     bool ship_steal_enemy_treasure(Unit u);
-
     //
     // Helper method delcarations
     //
@@ -145,8 +144,7 @@ public:
     bool go_deposit_ship(Unit u);
 
     //fuzzy stuff
-    bool fuzzy_deposit_gold_crew(Unit u)
-    bool fuzzy_go_heal_crew(Unit u);
+    bool fuzzy_deposit_gold_crew(Unit u);
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
