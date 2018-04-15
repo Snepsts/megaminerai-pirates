@@ -94,21 +94,78 @@ bool AI::run_turn()
     return true;
 }
 
+// bool AI::run_ship_turn(Unit u)
+// {
+//     std::cout << "run_ship_turn\n";
+//     float decision = get_ship_aggressiveness(u);
+
+//     if (decision > 0.75f) {
+//         destroy_enemy_ship(u);
+//     } else if (decision <= 0.75f || decision >= 0.35f) {
+//         unit_retreat_and_rest(u);
+//     } else { //decision < 0.35
+//         unit_retreat_and_rest(u);
+//     }
+
+//     return true;
+// }
+
 bool AI::run_ship_turn(Unit u)
 {
-    std::cout << "run_ship_turn\n";
-    float decision = get_ship_aggressiveness(u);
-
-    if (decision > 0.75f) {
-        destroy_enemy_ship(u);
-    } else if (decision <= 0.75f || decision >= 0.35f) {
+    if(go_deposit_ship(u) || fuzzy_go_heal_ship(u))
+    {
         unit_retreat_and_rest(u);
-    } else { //decision < 0.35
-        unit_retreat_and_rest(u);
+    } else {
+        if(fuzzy_pickup_units_ship() && !units_requesting_ship.empty())
+        {
+            if(pickup_units_with_gold(u))
+            {
+                if(fuzzy_go_heal_crew(u))
+                {
+                    unit_retreat_and_rest(u);
+                }
+                else
+                {
+                    if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
+                        return run_ship_attack(u);
+                    } else {
+                        return ship_steal_enemy_treasure(u);
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+        } else {
+            if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
+                return run_ship_attack(u);
+            } else {
+                return ship_steal_enemy_treasure(u);
+            }
+        }
     }
+}
 
+bool AI::fuzzy_pickup_units_ship()
+{
     return true;
 }
+
+// bool AI::pickup_units(Unit u)
+// {
+//     std::vector<std::vector<Tile>> possible_paths;
+//     for(Unit unit: units_requesting_ship)
+//     {
+//         std::vector<Tile> temp = find_path(u->tile, unit->tile, u)
+//         if(!temp.empty())
+//         {
+//             possible_paths.push_back(temp);
+//         }
+//     }
+//     std::sort(possible_paths.begin(), possible_paths.end(), [](std::vector<Tile> &a, std::vector<Tile> &b) -> bool { return a.size() <= b.size();});
+//     move_next_to_tile(u, possible_paths.back());
+// }
 
 bool AI::attack_instead_of_steal(Unit u)
 {
@@ -191,12 +248,6 @@ bool AI::check_on_home_island(Unit u)
     }
     return false;
 }
-
-bool AI::fuzzy_deposit_gold_crew(Unit u)
-{
-    return true;
-}
-
 
 bool AI::check_for_reachable_empty_ships(Unit u)
 {
@@ -328,7 +379,7 @@ bool AI::board_ship(Unit u)
 
 void AI::request_ship(Unit u)
 {
-    return;
+    units_requesting_ship.push_back(u);
 }
 
 bool AI::run_ship_attack(Unit u) //this is gross but enemy and merchants are treated differently in our logic sooo
@@ -704,7 +755,7 @@ bool AI::pickup_units_with_gold(Unit u)
     std::cout << "pickup_units_with_gold\n";
     std::vector<Unit> units_with_gold;
     std::vector<Tile> unit_tiles;
-    for(Unit unit : player->units) {
+    for(Unit unit : units_requesting_ship) {
         if (unit->gold > 0) {
             std::vector<Tile> path_to_home_port = find_path(u->tile, player->port->tile, u);
             if(path_to_home_port.back() != player->port->tile) {

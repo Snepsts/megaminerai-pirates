@@ -132,6 +132,7 @@ public:
     // Properties
     //
     std::vector<Tile> buried_treasure_vec;
+    std::vector<Unit> units_requesting_ship;
 
     // <<-- /Creer-Merge: methods -->>
     void spawn_units();
@@ -145,6 +146,7 @@ public:
 
     //fuzzy stuff
     bool fuzzy_deposit_gold_crew(Unit u);
+    bool fuzzy_pickup_units_ship();
     float get_ship_aggressiveness(Unit u);
     float get_ship_danger_level(Unit u);
     float get_ship_health_value(Unit u);
