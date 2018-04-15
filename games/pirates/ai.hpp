@@ -81,14 +81,14 @@ public:
 
     std::vector<Unit> get_enemy_crew();
     std::vector<Unit> get_enemy_ships();
+    std::vector<Tile> get_list_of_enemy_treasure();
     bool is_ship(Unit u);
     bool deposit_treasure_in_home(Unit u);
-    bool move_towards_enemy_treasure(Unit un);
-    std::vector<Tile> build_list_of_enemy_treasure();
-    bool steal_enemy_treasure(Unit un);
-    Tile get_closest_enemy_treasure(Unit un);
-    
-    bool steal_enemy_ship(Unit un);
+    bool move_towards_enemy_treasure(Unit u);
+    bool steal_enemy_treasure(Unit u);
+    Tile get_closest_enemy_treasure(Unit u);
+    Tile get_closest_enemy_ship(Unit u);
+    bool steal_enemy_ship(Unit u);
     // <<-- /Creer-Merge: methods -->>
 
 /// A very basic path finding algorithm (Breadth First Search) that when given a starting Tile, will return a valid path to the goal Tile.
