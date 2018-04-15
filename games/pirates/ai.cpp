@@ -16,6 +16,8 @@ namespace cpp_client
 namespace pirates
 {
 
+bool is_ship(Unit u);
+
 /// <summary>
 /// This returns your AI's name to the game server.
 /// Replace the string name.
@@ -97,78 +99,27 @@ void AI::spawner()
 bool AI::run_turn()
 {
     spawner();
-    // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
 
-    // if (this->player->units.size() == 0)
-    // {
-    //     // Spawn a crew if we have no units
-    //     this->player->port->spawn("crew");
-    // }
-    // else if (this->player->units[0]->ship_health == 0)
-    // {
-    //     // Spawn a ship so our crew can sail
-    //     this->player->port->spawn("ship");
-    // }
-    // else if (this->player->units[0]->ship_health < this->game->ship_health / 2)
-    // {
-    //     // Heal our unit if the ship is almost dead
-    //     // Node: Crew also have their own health. Maybe try adding a check to see if the crew need healing?
-    //     Unit unit = this->player->units[0];
+    auto my_units = player->units;
 
-    //     // Find a path to our port so we can heal
-    //     std::vector<Tile> path = this->find_path(unit->tile, this->player->port->tile, unit);
-    //     if (path.size() > 0)
-    //     {
-    //         // Move along the path if there is one
-    //         unit->move(path[0]);
-    //     }
-    //     else
-    //     {
-    //         // Try to deposit any gold we have while we're here
-    //         unit->deposit();
+    for (auto unit : my_units) {
+        if (is_ship(unit)) {
+            run_ship_turn(unit);
+        } else {
+            run_crew_turn(unit);
+        }
+    }
+    
+    return true;
+}
 
-    //         // Try to rest
-    //         unit->rest();
-    //     }
-    // }
-    // else
-    // {
-    //     // Try to attack a merchant
-    //     Unit unit = this->player->units[0];
+bool AI::run_ship_turn(Unit u)
+{
+    return true;
+}
 
-    //     // Look for a merchant ship
-    //     Unit merchant = NULL;
-    //     std::vector<Unit> units = this->game->units;
-    //     for (unsigned int i = 0; i < units.size(); i++)
-    //     {
-    //         if (units[i]->target_port != NULL)
-    //         {
-    //             // Found one
-    //             merchant = units[i];
-    //             break;
-    //         }
-    //     }
-
-    //     // If we found a merchant, move to it, then attack it
-    //     if (merchant != NULL)
-    //     {
-    //         // Find a path to this merchant
-    //         std::vector<Tile> path = this->find_path(unit->tile, merchant->tile, unit);
-    //         if (path.size() > this->game->ship_range)
-    //         {
-    //             // Move until we're withing firing range of the merchant
-    //             // Node: Range is *Circular* in pirates, so this can be improved on
-    //             unit->move(path[0]);
-    //         }
-    //         else
-    //         {
-    //             // Try to attack the merchant's ship
-    //             unit->attack(merchant->tile, "ship");
-    //         }
-    //     }
-    // }
-
-    // <<-- /Creer-Merge: runTurn -->>
+bool AI::run_crew_turn(Unit u)
+{
     return true;
 }
 
@@ -306,7 +257,12 @@ std::vector<Tile> AI::find_path(const Tile& start, const Tile& goal, const Unit&
 }
 
 //<<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-// You can add additional methods here for your AI to call
+
+bool is_ship(Unit u)
+{
+    return u->ship_health > 0;
+}
+
 //<<-- /Creer-Merge: methods -->>
 
 } // pirates
