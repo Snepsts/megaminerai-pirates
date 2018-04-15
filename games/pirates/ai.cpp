@@ -351,7 +351,7 @@ bool AI::destroy_enemy_ship(Unit u)
 
 bool AI::destroy_merchant_ship(Unit u)
 {
-    Tile closest_ship_tile = get_closest_enemy_ship(u);
+    Tile closest_ship_tile = get_closest_merchant_ship(u);
     auto path = this->find_path(u->tile, closest_ship_tile, u);
     if(path.size() > 3)
     {
@@ -420,6 +420,30 @@ Tile AI::get_closest_empty_ship(Unit u)
         return NULL;
     }
     return get_closest_tile_from_options(u, empty_ship_tiles);
+}
+
+Tile AI::get_closest_merchant_ship(Unit u)
+{
+    std::vector<Unit> merchants;
+    for(auto un : this->game->units)
+    {
+        if(un->target_port != nullptr)
+            merchants.push_back(un);
+    }
+
+    if(merchants.size() > 0)
+    {
+        Unit m = merchants[0];
+        auto distance = this->find_path(u->tile, m->tile, u).size();
+        for(auto merch : merchants)
+        {
+            auto current_distance = this->find_path(u->tile, merch->tile, u).size();
+            if(current_distance > distance)
+                m = merch;
+        }
+        return m->tile;
+    }
+    return nullptr;
 }
 
 Tile AI::get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options)
