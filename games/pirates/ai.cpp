@@ -547,16 +547,13 @@ bool AI::fuzzy_go_heal_ship(Unit u)
 // Returns true if the unit should go heal
 // Returns false if the unit should skip
 {
-    int max_health;
-    if(is_ship(u))
-        max_health = this->game->ship_health;
-    else
-        max_health = this->game->crew_health;
+    int max_health = this->game->ship_health;
+    int health = u->ship_health;
+    if(health == max_health)
+        return false;
 
     int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
-
     int distance = distance_to_port(u);
-    int health = is_ship(u) ? u->ship_health : u->crew_health;
 
     float fuzzy_distance = 1 - (distance / max_distance);
     float fuzzy_health = 1 - (health / max_health);
@@ -564,8 +561,6 @@ bool AI::fuzzy_go_heal_ship(Unit u)
     float fuzzy_value = (fuzzy_distance + fuzzy_health) / 2;
 
     return fuzzy_value >= 0.5;
-
-
 }
 
 float AI::get_ship_danger_level(Unit u)
