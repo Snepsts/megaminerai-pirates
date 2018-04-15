@@ -235,6 +235,25 @@ float AI::ship_richness(Unit u)
 //******************************************************************************************
 //Fuzzy functions
 //******************************************************************************************
+bool AI::fuzzy_deposit_gold_crew(Unit u)
+{
+    bool has_gold = u->gold > 0;
+
+    if(has_gold)
+    {
+        int max_health = this->game->crew_health;
+        int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
+        int max_gold = 2000;
+        int distance = distance_to_port(u);
+
+        float fuzzy_distance = 1 - (distance / max_distance);
+        float fuzzy_gold = u->gold / max_gold;
+
+        float fuzzy_value = (fuzzy_distance + fuzzy_gold) / 2;
+        return fuzzy_value > 0.5;
+    }
+    return false;
+}
 
 bool AI::fuzzy_go_heal_crew(Unit u)
 {
