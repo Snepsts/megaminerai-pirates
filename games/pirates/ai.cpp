@@ -113,35 +113,53 @@ bool AI::run_turn()
 
 bool AI::run_ship_turn(Unit u)
 {
-    if(go_deposit_ship(u) || fuzzy_go_heal_ship(u))
+    if(go_deposit_ship(u)) {
+        std::cout << "Ship: go_deposit_ship passed\n";
+        unit_retreat_and_rest(u);
+    }
+    if(fuzzy_go_heal_ship(u))
     {
+        std::cout << "Ship: fuzzy_go_heal_ship passed\n";
         unit_retreat_and_rest(u);
     } else {
         if(fuzzy_pickup_units_ship() && !units_requesting_ship.empty())
         {
+            std::cout << "Ship: fuzzy_pickup_units_ship passed and units_requesting_ship is not empty\n";
             if(pickup_units_with_gold(u))
             {
+                std::cout << "Ship: pickup_units_with_gold called\n";
                 if(fuzzy_go_heal_crew(u))
                 {
+                    std::cout << "Ship: fuzzy_go_heal_crew called\n";
                     unit_retreat_and_rest(u);
                 }
                 else
                 {
                     if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
+                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
                         return run_ship_attack(u);
                     } else {
+                        std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
                         return ship_steal_enemy_treasure(u);
                     }
                 }
-            }
-            else
-            {
-                return false;
+            } else {
+                //?
+                std::cout << "Ship: fuzzy_pickup_units_ship failed or no units_requesting_ship\n";
+                if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
+                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
+                    return run_ship_attack(u);
+                } else {
+                    std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
+                    return ship_steal_enemy_treasure(u);
+                }
             }
         } else {
             if(fuzzy_steal_or_destroy_enemy_ship(u) == 0) {
+                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 0\n";
                 return run_ship_attack(u);
             } else {
+                std::cout << "Ship: fuzzy_steal_or_destory_enemy_ship called == 1\n";
                 return ship_steal_enemy_treasure(u);
             }
         }
@@ -215,25 +233,33 @@ bool AI::run_crew_turn(Unit u)
 {
     if(fuzzy_go_heal_crew(u)) //should we go heal?
     {
+        std::cout << "Crew: fuzzy_go_heal passed\n";
         return crew_try_to_get_home(u);
     } else { //don't go heal
         if(fuzzy_deposit_gold_crew(u)) { //should we go deposit gold?
+            std::cout << "Crew: fuzzy_deposit_gold passed\n";
             return crew_try_to_get_home(u); //yes
         } else { //no
             if(check_for_reachable_empty_ships(u)) {
+                std::cout << "Crew: check_for_reachable_empty_ships passed\n";
                 return board_empty_ship(u);
             } else {
                 if(check_for_enemy_treasure_on_island(u)) { //is the treasure on this island?
+                    std::cout << "Crew: check_for_enemy_treasure_on_island passed\n";
                     return steal_enemy_treasure(u); //yes lets go steal it
                 } else if(check_unit_board_ship(u)) {
+                    std::cout << "Crew: check_unit_board_ship passed\n";
                     return board_ship(u);
                 } else {
                     request_ship(u); //requested a ship
+                    std::cout << "Crew: requested_ship called\n";
                     return false;
                 }
             }
         }
     }
+    std::cout << "Crew: Total turn failure\n";
+    return false ;
 }
 
 bool AI::check_on_home_island(Unit u)
