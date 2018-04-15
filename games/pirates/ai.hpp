@@ -132,6 +132,7 @@ public:
 
     //fuzzy controllers
     bool attack_instead_of_steal(Unit u);
+    bool go_deposit_ship(Unit u);
 
     //fuzzy stuff
     float get_ship_aggressiveness(Unit u);
@@ -139,6 +140,8 @@ public:
     float get_ship_health_value(Unit u);
     float get_crew_dig_fuzzy(Unit u, Tile t);
     float closeness_to_gold(Unit u);
+    float ship_richness(Unit u);
+    float closeness_to_port(Unit u);
 
     //fuzzy helpers
     int get_distance_to_enemy_gold(Unit u);

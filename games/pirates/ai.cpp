@@ -209,6 +209,29 @@ float AI::get_ship_aggressiveness(Unit u)
     return ret / 2;
 }
 
+bool AI::go_deposit_ship(Unit u)
+{
+    float val = 0.0f;
+
+    val += closeness_to_port(u);
+    val += (1 - get_ship_health_value(u));
+    val += ship_richness(u);
+    val /= 3;
+
+    return val > 0.5f;
+}
+
+float AI::closeness_to_port(Unit u)
+{
+    float distance_to_port = (float)this->find_path(u->tile, this->player->port->tile, u).size();
+    return 1 - (distance_to_port / (game->map_height + game->map_width));
+}
+
+float AI::ship_richness(Unit u)
+{
+    return (float)(u->gold / 10000);
+}
+
 //******************************************************************************************
 //Fuzzy functions
 //******************************************************************************************
