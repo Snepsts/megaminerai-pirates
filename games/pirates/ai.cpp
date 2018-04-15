@@ -488,13 +488,15 @@ float AI::ship_richness(Unit u)
 //Fuzzy functions
 //******************************************************************************************
 bool AI::fuzzy_deposit_gold_crew(Unit u)
+// max_gold is a constant. I set it low to 500 to make it
+// likely that the crew will deposit the gold whenever they have it
 {
     bool has_gold = u->gold > 0;
 
     if(has_gold)
     {
         int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
-        int max_gold = 2000;
+        int max_gold = 500;
         int distance = distance_to_port(u);
 
         float fuzzy_distance = 1 - (distance / max_distance);
@@ -509,11 +511,12 @@ bool AI::fuzzy_deposit_gold_crew(Unit u)
 bool AI::fuzzy_go_heal_crew(Unit u)
 {
     int max_health = this->game->crew_health;
+    int health = u->crew_health;
+    if(health == max_health)
+        return false;
 
     int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
-
     int distance = distance_to_port(u);
-    int health = u->crew_health;
 
     float fuzzy_distance = 1 - (distance / max_distance);
     float fuzzy_health = 1 - (health / max_health);
@@ -525,7 +528,7 @@ bool AI::fuzzy_go_heal_crew(Unit u)
 }
 
 bool AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
-// 0 = steal, 1 = destroy
+// false = steal, true = destroy
 {
     auto enemy = get_closest_enemy_ship(u);
 
