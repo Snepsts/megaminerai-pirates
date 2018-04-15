@@ -5,6 +5,7 @@
 
 #include<map>
 #include<string>
+#include<algorithm>
 // <<-- Creer-Merge: includes -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
 // You can add #includes here for your AI.
 // <<-- /Creer-Merge: includes -->>
@@ -148,7 +149,9 @@ float AI::get_ship_health_value(Unit u)
     return (float)(u->ship_health / game->ship_health);
 }
 
+//**************************************************************************************************
 //action functions
+//**************************************************************************************************
 bool AI::heal_ship(Unit u)
 {
     Tile closest_port = get_closest_port(u);
@@ -295,6 +298,31 @@ bool AI::unit_retreat_and_rest(Unit u)
     return false;
 }
 
+bool AI::crew_bury_treasure(Unit u)
+//Checks if the unit has gold and buries it there.  If the tile doesnt have gold in it previously
+//it is added to the buried treasure vector
+{
+    if(u->gold > 0)
+    {
+        if(std::find(buried_treasure_vec.begin(), buried_treasure_vec.end(), u->tile) == buried_treasure_vec.end())
+            buried_treasure_vec.push_back(u->tile);
+            
+        return u->bury(u->gold);
+    }
+    return false;
+}
+
+bool AI::crew_dig_treasure(Unit u, Tile t)
+{
+    move_to_tile(u, t);
+    if(u->tile == t)
+    {
+        return u->dig(-1);
+    }
+    return false;
+}
+
+//**************************************************************************************************
 //helper functions
 Tile AI::get_closest_empty_ship(Unit u)
 {

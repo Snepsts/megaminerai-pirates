@@ -89,6 +89,7 @@ public:
     Tile get_closest_empty_ship(Unit u);
     Tile get_closest_port(Unit u);
     Tile get_closest_tile_from_options(Unit u, std::vector<Tile> tile_options);
+    
     //
     //Action Definitions
     //
@@ -99,6 +100,9 @@ public:
     bool destroy_enemy_ship(Unit u);
     bool unit_retreat_and_rest(Unit u);
     bool board_empty_ship(Unit u);
+    bool crew_bury_treasure(Unit u);
+    bool crew_dig_treasure(Unit u, Tile t);
+
     //
     // Helper method delcarations
     //
@@ -107,6 +111,10 @@ public:
     bool move_next_to_tile(Unit u, Tile t);
     bool is_ship(Unit u);
 
+    //
+    // Properties
+    //
+    std::vector<Tile> buried_treasure_vec;
 
     // <<-- /Creer-Merge: methods -->>
     void spawn_units();
