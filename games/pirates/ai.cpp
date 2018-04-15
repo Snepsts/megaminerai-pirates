@@ -250,7 +250,33 @@ float AI::fuzzy_steal_or_destroy_enemy_ship(Unit u)
     float ship_fuzzy = (float)enemy_ship_health / max;
     float crew_fuzzy = 1 - ((float)enemy_crew_health / max);
 
-    return (ship_fuzzy + crew_fuzzy) / 2;
+    float fuzzy_value = (ship_fuzzy + crew_fuzzy) / 2;
+    return fuzzy_value >= 0.5;
+}
+
+float AI::fuzzy_go_heal_skip(Unit u)
+// Returns true if the unit should go heal
+// Returns false if the unit should skip
+{
+    int max_health;
+    if(is_ship(u))
+        max_health = this->game->ship_health;
+    else
+        max_health = this->game->crew_health;
+
+    int max_distance = this->game->map_width > this->game->map_height ? this->game->map_width : this->game->map_height;
+
+    int distance = distance_to_port(u);
+    int health = is_ship(u) ? u->ship_health : u->crew_health;
+
+    float fuzzy_distance = 1 - (distance / max_distance);
+    float fuzzy_health = 1 - (health / max_health);
+
+    float fuzzy_value = (fuzzy_distance + fuzzy_health) / 2;
+
+    return fuzzy_value >= 0.5;
+
+
 }
 
 float AI::get_ship_danger_level(Unit u)
@@ -635,6 +661,11 @@ bool AI::crew_dig_treasure(Unit u, Tile t)
 //**************************************************************************************************
 //helper functions
 //**************************************************************************************************
+int AI::distance_to_port(Unit u)
+{
+    return this->find_path(u->tile, this->player->port->tile, u).size();
+}
+
 Tile AI::get_closest_empty_ship(Unit u)
 {
     std::cout << "get_closest_empty_ship\n";
