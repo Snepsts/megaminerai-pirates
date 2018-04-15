@@ -591,27 +591,24 @@ int AI::get_close_enemy_ships(Unit u)
 
 void AI::spawn_units()
 {
-    std::vector<Unit> ships;
-    std::vector<Unit> crew;
-    for(auto u : this->player->units)
-    {
-        if(u->ship_health > 0)
-            ships.push_back(u);
-        else
-            crew.push_back(u);
+    int ships = 0;
+    int crew = 0;
+
+    for (auto unit : this->player->units) {
+        if (unit->ship_health > 0)
+            ships++;
+        crew += unit->crew;
     }
-    if(crew.size() == 0)
-    {
+
+    if (crew == 0) {
         this->player->port->spawn("crew");
     }
-    else if(ships.size() == 0)
-    {
+    
+    if (ships == 0) {
         this->player->port->spawn("ship");
-    }
-    else
-    {
-        float ratio = crew.size() / ships.size();
-        if(ratio < 3)
+    } else {
+        float ratio = crew / ships;
+        if (ratio < 3)
             this->player->port->spawn("crew");
         else
             this->player->port->spawn("ship");
